@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import voting.app.voting.app.aop.ExtractUser;
+import voting.app.voting.app.dto.SavePollRequest;
 import voting.app.voting.app.model.Poll;
+import voting.app.voting.app.model.User;
 import voting.app.voting.app.service.PollService;
 
 @RestController
@@ -20,10 +23,9 @@ public class PollController {
         return new ResponseEntity<>(pollService.getPoll(id), HttpStatus.OK);
     }
 
-    //TODO: update savePoll endpoint
-
     @PostMapping
-    public ResponseEntity<Poll> savePoll() {
-        return new ResponseEntity<>(pollService.savePoll(), HttpStatus.OK);
+    @ExtractUser(fieldName = "createdBy")
+    public ResponseEntity<Poll> savePoll(User createdBy, @RequestBody SavePollRequest request) {
+        return new ResponseEntity<>(pollService.savePoll(createdBy, request), HttpStatus.OK);
     }
 }
