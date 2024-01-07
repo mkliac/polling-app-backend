@@ -11,16 +11,13 @@ import voting.app.voting.app.constant.JwtConstants;
 @Component
 public class JwtHelper {
     public String getByClaimName(String token, String claimName) {
-        token = token.substring(JwtConstants.BEARER_PREFIX_LENGTH);
-        String value;
         try {
+            token = token.substring(JwtConstants.BEARER_PREFIX_LENGTH);
             JWT jwt = JWTParser.parse(token);
-            value = jwt.getJWTClaimsSet().getClaim(claimName).toString();
+            return jwt.getJWTClaimsSet().getClaim(claimName).toString();
         } catch (Exception e) {
             return null;
         }
-
-        return value;
     }
 
     public String getCurrentRequestToken() {
