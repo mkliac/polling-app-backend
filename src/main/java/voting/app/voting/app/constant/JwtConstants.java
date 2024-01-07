@@ -12,4 +12,6 @@ public class JwtConstants {
     public static final String CLAIM_EMAIL = "email";
 
     public static final String CLAIM_NAME = "name";
+
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 }

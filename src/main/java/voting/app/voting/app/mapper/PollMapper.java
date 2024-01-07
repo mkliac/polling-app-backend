@@ -14,6 +14,7 @@ import java.util.List;
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 @Component
 public interface PollMapper {
+    @Mapping(target = "id", ignore = true)
     @Mapping(source = "createdBy", target = "createdBy")
     Poll fromSavePollRequest(User createdBy, SavePollRequest request);
 
