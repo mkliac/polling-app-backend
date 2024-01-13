@@ -1,10 +1,13 @@
 package voting.app.voting.app.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import voting.app.voting.app.aop.ExtractUser;
+import voting.app.voting.app.dto.AddPollItemsRequest;
+import voting.app.voting.app.dto.DeletePollItemsRequest;
 import voting.app.voting.app.dto.SavePollRequest;
 import voting.app.voting.app.model.Poll;
 import voting.app.voting.app.model.User;
@@ -31,28 +34,38 @@ public class PollController {
 
     @PostMapping
     @ExtractUser(fieldName = "createdBy")
-    public ResponseEntity<Poll> savePoll(User createdBy, @RequestBody SavePollRequest request) {
+    public ResponseEntity<Poll> savePoll(User createdBy,@Valid @RequestBody SavePollRequest request) {
         return new ResponseEntity<>(pollService.savePoll(createdBy, request), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePoll(@PathVariable String id) {
-        pollService.deletePoll(id);
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<Void> deletePoll(User user, @PathVariable String id) {
+        pollService.deletePoll(user, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/{id}/items")
-    public ResponseEntity<Poll> addPollItems(@PathVariable String id, @RequestBody List<String> itemTexts) {
-        return new ResponseEntity<>(pollService.addPollItems(id, itemTexts), HttpStatus.OK);
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<Poll> addPollItems(User user, @PathVariable String id, @Valid @RequestBody AddPollItemsRequest request) {
+        return new ResponseEntity<>(pollService.addPollItems(user, id, request), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/items")
-    public ResponseEntity<Poll> deletePollItems(@PathVariable String id, @RequestBody List<String> itemIds) {
-        return new ResponseEntity<>(pollService.deletePollItems(id, itemIds), HttpStatus.OK);
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<Poll> deletePollItems(User user, @PathVariable String id, @Valid @RequestBody DeletePollItemsRequest request) {
+        return new ResponseEntity<>(pollService.deletePollItems(user, id, request), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/items/{itemId}")
-    public ResponseEntity<Poll> updatePollItem(@PathVariable String id, @PathVariable String itemId, @RequestParam String text) {
-        return new ResponseEntity<>(pollService.updatePollItem(id, itemId, text), HttpStatus.OK);
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<Poll> updatePollItem(User user, @PathVariable String id, @PathVariable String itemId, @RequestParam String text) {
+        return new ResponseEntity<>(pollService.updatePollItem(user, id, itemId, text), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/items/{itemId}/vote")
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<Poll> vote(User user, @PathVariable String id, @PathVariable String itemId) {
+        return new ResponseEntity<>(pollService.vote(user, id, itemId), HttpStatus.OK);
     }
 }

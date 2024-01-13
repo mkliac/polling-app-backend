@@ -22,7 +22,7 @@ public class Poll extends CreatableEntity {
 
     private String description;
 
-    @DocumentReference
+    @DocumentReference(lazy = true)
     private List<PollItem> items = new ArrayList<>();
 
     private Instant closedAt;

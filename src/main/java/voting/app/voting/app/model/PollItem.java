@@ -5,8 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Document(collection = "poll_item")
@@ -16,6 +16,6 @@ public class PollItem {
 
     private String text;
 
-    @DocumentReference
-    private List<User> voters = new ArrayList<>();
+    @DocumentReference(lazy = true)
+    private Set<User> voters = new HashSet<>();
 }
