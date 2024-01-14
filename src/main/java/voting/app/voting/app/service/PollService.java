@@ -18,6 +18,7 @@ import voting.app.voting.app.repository.PollItemRepository;
 import voting.app.voting.app.repository.PollRepository;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -107,16 +108,14 @@ public class PollService {
 
     public Poll vote(User user, String pollId, String pollItemId) {
         Poll poll = findPollByIdOrElseThrow(pollId);
-        poll.getItems().forEach(i -> {
-            if (i.getId().equals(pollItemId)) {
-                i.getVoters().add(user);
-                pollItemRepository.save(i);
-            } else if (i.getVoters().contains(user)) {
-                i.getVoters().remove(user);
-                pollItemRepository.save(i);
-            }
-        });
+        List<PollItem> pollItems = pollItemRepository.findAllByIdInAndVotersContaining(poll.getItems().stream().map(PollItem::getId).toList(), user);
+        pollItems.forEach(p -> p.deleteVoter(user));
 
-        return poll;
+        PollItem pollItemToVote = findPollItemByIdOrElseThrow(pollItemId);
+        pollItemToVote.addVoter(user);
+
+        pollItemRepository.saveAll(Stream.concat(pollItems.stream(), Stream.of(pollItemToVote)).toList());
+
+        return findPollByIdOrElseThrow(pollId);
     }
 }
