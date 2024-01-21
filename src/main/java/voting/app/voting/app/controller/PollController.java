@@ -18,6 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/polls")
+@CrossOrigin
 public class PollController {
     private final PollService pollService;
 
