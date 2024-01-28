@@ -58,13 +58,13 @@ public class PollController {
         return new ResponseEntity<>(pollService.deletePollItems(user, id, request), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/items/{itemId}")
+    @PostMapping("/{id}/items/{itemId}")
     @ExtractUser(fieldName = "user")
     public ResponseEntity<Poll> updatePollItem(User user, @PathVariable String id, @PathVariable String itemId, @RequestParam String text) {
         return new ResponseEntity<>(pollService.updatePollItem(user, id, itemId, text), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/items/{itemId}/vote")
+    @PostMapping("/{id}/items/{itemId}/vote")
     @ExtractUser(fieldName = "user")
     public ResponseEntity<Poll> vote(User user, @PathVariable String id, @PathVariable String itemId) {
         return new ResponseEntity<>(pollService.vote(user, id, itemId), HttpStatus.OK);
