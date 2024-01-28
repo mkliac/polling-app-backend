@@ -49,11 +49,8 @@ public class LogAspect {
                 .append("] ")
                 .append(request.getRequestURI());
 
-        String token = request.getHeader("Authorization");
-        String userId = null;
-        if (token != null) {
-            userId = jwtHelper.getByClaimName(token, JwtConstants.CLAIM_EMAIL);
-        }
+        String token = request.getHeader(JwtConstants.AUTHORIZATION_HEADER);
+        String userId = jwtHelper.getByClaimName(token, JwtConstants.CLAIM_EMAIL);
 
         message.append(" [Requester] ")
                 .append(userId)
@@ -67,17 +64,14 @@ public class LogAspect {
             int index = 0;
             for (String argName : argNames) {
                 String argVal = Objects.toString(args[index++]);
-                if (argVal.isEmpty()) {
-                    argVal = EMPTY_PLACE_HOLDER;
-                }
                 message.append(argName)
                         .append("=")
-                        .append(argVal)
+                        .append(argVal.isEmpty() ? EMPTY_PLACE_HOLDER : argVal)
                         .append(REQUEST_ARG_DELIMITER);
             }
         }
         String logMessage = message.toString();
-        if (logMessage.endsWith(", ")) {
+        if (logMessage.endsWith(REQUEST_ARG_DELIMITER)) {
             logMessage = logMessage.substring(0, logMessage.lastIndexOf(REQUEST_ARG_DELIMITER));
         }
         return logMessage;
