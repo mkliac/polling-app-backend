@@ -129,4 +129,17 @@ public class PollController {
     public ResponseEntity<Poll> vote(User user, @PathVariable String id, @PathVariable String itemId) {
         return new ResponseEntity<>(pollService.vote(user, id, itemId), HttpStatus.OK);
     }
+
+    @PostMapping("/{id}/close")
+    @Operation(
+            tags = "Poll",
+            summary = "Close Poll",
+            description = "This endpoint is used to close a poll")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Return the updated poll")
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<Poll> closePoll(User user, @PathVariable String id) {
+        return new ResponseEntity<>(pollService.closePoll(user, id), HttpStatus.OK);
+    }
 }

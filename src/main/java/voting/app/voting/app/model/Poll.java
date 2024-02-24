@@ -25,8 +25,6 @@ public class Poll extends CreatableEntity {
     @DocumentReference(lazy = true)
     private List<PollItem> items = new ArrayList<>();
 
-    private Instant closedAt;
-
     private Boolean isPrivate;
 
     private Instant closedDate;

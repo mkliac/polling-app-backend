@@ -1,7 +1,8 @@
 sever:
   port: 8080
   error:
-    include-message: on-param
+    include-binding-errors: always
+    include-message: always
 
 spring:
   security:

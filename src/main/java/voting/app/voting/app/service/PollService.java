@@ -17,6 +17,7 @@ import voting.app.voting.app.model.User;
 import voting.app.voting.app.repository.PollItemRepository;
 import voting.app.voting.app.repository.PollRepository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -106,8 +107,22 @@ public class PollService {
                         "Poll item with id=" + id + " not found"));
     }
 
+    public Poll closePoll(User user, String pollId) {
+        Poll poll = findPollByIdOrElseThrow(pollId);
+        ownerValidator.isOwner(user, poll);
+
+        poll.setClosedDate(Instant.now());
+        poll = pollRepository.save(poll);
+
+        return poll;
+    }
+
     public Poll vote(User user, String pollId, String pollItemId) {
         Poll poll = findPollByIdOrElseThrow(pollId);
+        if (poll.getClosedDate() != null && poll.getClosedDate().isBefore(Instant.now())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Poll with id=" + pollId + " is closed");
+        }
+
         List<PollItem> pollItems = pollItemRepository.findAllByIdInAndVotersContaining(poll.getItems().stream().map(PollItem::getId).toList(), user);
         pollItems.forEach(p -> p.deleteVoter(user));
 
