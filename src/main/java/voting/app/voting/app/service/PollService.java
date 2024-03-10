@@ -37,7 +37,8 @@ public class PollService {
     }
 
     public List<Poll> getPolls(User user) {
-        return pollRepository.findAllByCreatedBy(user);
+        //TODO: add options for filter
+        return pollRepository.findAll();
     }
 
     public void deletePoll(User user, String id) {
@@ -132,5 +133,10 @@ public class PollService {
         pollItemRepository.saveAll(Stream.concat(pollItems.stream(), Stream.of(pollItemToVote)).toList());
 
         return findPollByIdOrElseThrow(pollId);
+    }
+
+    public List<User> getVoters(String itemId) {
+        PollItem pollItem = findPollItemByIdOrElseThrow(itemId);
+        return pollItem.getVoters().stream().toList();
     }
 }

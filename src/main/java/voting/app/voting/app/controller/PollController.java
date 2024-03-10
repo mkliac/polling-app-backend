@@ -1,6 +1,7 @@
 package voting.app.voting.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -47,7 +48,7 @@ public class PollController {
             responseCode = "200",
             description = "Return all user's polls")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<List<Poll>> getPolls(User user) {
+    public ResponseEntity<List<Poll>> getPolls(@Parameter(hidden = true) User user) {
         return new ResponseEntity<>(pollService.getPolls(user), HttpStatus.OK);
     }
 
@@ -60,7 +61,7 @@ public class PollController {
             responseCode = "200",
             description = "Return the saved poll")
     @ExtractUser(fieldName = "createdBy")
-    public ResponseEntity<Poll> savePoll(User createdBy,@Valid @RequestBody SavePollRequest request) {
+    public ResponseEntity<Poll> savePoll(@Parameter(hidden = true) User createdBy,@Valid @RequestBody SavePollRequest request) {
         return new ResponseEntity<>(pollService.savePoll(createdBy, request), HttpStatus.OK);
     }
 
@@ -73,7 +74,7 @@ public class PollController {
             responseCode = "200",
             description = "Void")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Void> deletePoll(User user, @PathVariable String id) {
+    public ResponseEntity<Void> deletePoll(@Parameter(hidden = true) User user, @PathVariable String id) {
         pollService.deletePoll(user, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -87,7 +88,7 @@ public class PollController {
             responseCode = "200",
             description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> addPollItems(User user, @PathVariable String id, @Valid @RequestBody AddPollItemsRequest request) {
+    public ResponseEntity<Poll> addPollItems(@Parameter(hidden = true) User user, @PathVariable String id, @Valid @RequestBody AddPollItemsRequest request) {
         return new ResponseEntity<>(pollService.addPollItems(user, id, request), HttpStatus.OK);
     }
 
@@ -100,7 +101,7 @@ public class PollController {
             responseCode = "200",
             description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> deletePollItems(User user, @PathVariable String id, @Valid @RequestBody DeletePollItemsRequest request) {
+    public ResponseEntity<Poll> deletePollItems(@Parameter(hidden = true) User user, @PathVariable String id, @Valid @RequestBody DeletePollItemsRequest request) {
         return new ResponseEntity<>(pollService.deletePollItems(user, id, request), HttpStatus.OK);
     }
 
@@ -113,7 +114,7 @@ public class PollController {
             responseCode = "200",
             description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> updatePollItem(User user, @PathVariable String id, @PathVariable String itemId, @RequestParam String text) {
+    public ResponseEntity<Poll> updatePollItem(@Parameter(hidden = true) User user, @PathVariable String id, @PathVariable String itemId, @RequestParam String text) {
         return new ResponseEntity<>(pollService.updatePollItem(user, id, itemId, text), HttpStatus.OK);
     }
 
@@ -126,7 +127,7 @@ public class PollController {
             responseCode = "200",
             description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> vote(User user, @PathVariable String id, @PathVariable String itemId) {
+    public ResponseEntity<Poll> vote(@Parameter(hidden = true) User user, @PathVariable String id, @PathVariable String itemId) {
         return new ResponseEntity<>(pollService.vote(user, id, itemId), HttpStatus.OK);
     }
 
@@ -139,7 +140,19 @@ public class PollController {
             responseCode = "200",
             description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> closePoll(User user, @PathVariable String id) {
+    public ResponseEntity<Poll> closePoll(@Parameter(hidden = true) User user, @PathVariable String id) {
         return new ResponseEntity<>(pollService.closePoll(user, id), HttpStatus.OK);
+    }
+
+    @GetMapping("/items/{id}/voters")
+    @Operation(
+            tags = "Poll",
+            summary = "Get Voters",
+            description = "This endpoint is used to get voters of a poll item")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Return the voters of a poll item")
+    public ResponseEntity<List<User>> getVoters(@PathVariable String id) {
+        return new ResponseEntity<>(pollService.getVoters(id), HttpStatus.OK);
     }
 }
