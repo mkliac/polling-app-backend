@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class DeletePollItemsRequest {
-    @Size(min = 1)
+    @Size(min = 1, message = "At least one item is required")
     @Schema(description = "List of ids for poll items", required = true)
     private List<String> ids;
 }

@@ -11,25 +11,25 @@ import java.util.List;
 
 @Data
 public class SavePollRequest {
-    @NotEmpty
+    @NotEmpty()
     @Schema(description = "Title of the poll", required = true)
     private String title;
 
     @Schema(description = "Description of the poll")
     private String description = "";
 
-    @Size(min = 2)
+    @Size(min = 2, message = "At least two items are required")
     @Schema(description = "List of items for the poll", required = true)
     private List<String> items;
 
-    @NotNull
+    @NotNull(message = "isPrivate is required")
     @Schema(description = "Is the poll private", required = true)
     private Boolean isPrivate;
 
     @Schema(description = "Date when the poll will be closed")
     private Instant closedDate;
 
-    @NotNull
+    @NotNull(message = "isAnonymous is required")
     @Schema(description = "Is the poll anonymous", required = true)
     private Boolean isAnonymous;
 }
