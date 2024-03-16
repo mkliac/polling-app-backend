@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import voting.app.voting.app.config.AppConfig;
 import voting.app.voting.app.dto.AddPollItemsRequest;
 import voting.app.voting.app.dto.DeletePollItemsRequest;
 import voting.app.voting.app.dto.SavePollRequest;
@@ -26,11 +27,14 @@ import java.util.stream.Stream;
 @Slf4j
 public class PollService {
     private final PollRepository pollRepository;
+
     private final PollItemRepository pollItemRepository;
 
     private final PollMapper pollMapper;
 
     private final OwnerValidator ownerValidator;
+
+    private final AppConfig appConfig;
 
     public Poll getPoll(String id) {
         return findPollByIdOrElseThrow(id);
@@ -55,7 +59,27 @@ public class PollService {
                                             "Poll with id=" + id + " not found"));
     }
 
+    private void validateSavePollRequest(SavePollRequest request) {
+        if (request.getClosedDate() != null && request.getClosedDate().isBefore(Instant.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Closed date must be in the future");
+        }
+
+        AppConfig.PollConfig pollConfig = appConfig.getPollConfig();
+        if (request.getTitle().length() < pollConfig.getMinTitleLength() || request.getTitle().length() > pollConfig.getMaxTitleLength()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title length must be between " + pollConfig.getMinTitleLength() + " and " + pollConfig.getMaxTitleLength());
+        }
+
+        if (request.getDescription().length() > pollConfig.getMaxDescriptionLength()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description length must be less than " + pollConfig.getMaxDescriptionLength());
+        }
+
+        if (request.getItems().size() > pollConfig.getMaxPollItems()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max poll items is " + pollConfig.getMaxPollItems());
+        }
+    }
+
     public Poll savePoll(User createdBy, SavePollRequest request) {
+        validateSavePollRequest(request);
         Poll poll = pollMapper.fromSavePollRequest(createdBy, request);
         poll.setPriority(PollPriority.NORMAL);
 

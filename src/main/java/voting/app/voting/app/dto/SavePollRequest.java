@@ -16,9 +16,9 @@ public class SavePollRequest {
     private String title;
 
     @Schema(description = "Description of the poll")
-    private String description;
+    private String description = "";
 
-    @Size(min = 2, max = 10)
+    @Size(min = 2)
     @Schema(description = "List of items for the poll", required = true)
     private List<String> items;
 
