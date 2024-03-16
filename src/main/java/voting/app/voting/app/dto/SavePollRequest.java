@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 public class SavePollRequest {
-    @NotEmpty()
+    @NotEmpty(message = "Title is required")
     @Schema(description = "Title of the poll", required = true)
     private String title;
 
