@@ -8,9 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import voting.app.voting.app.aop.ExtractUser;
 import voting.app.voting.app.dto.AddPollItemsRequest;
 import voting.app.voting.app.dto.DeletePollItemsRequest;
@@ -20,7 +18,6 @@ import voting.app.voting.app.model.User;
 import voting.app.voting.app.service.PollService;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,10 +61,7 @@ public class PollController {
             responseCode = "200",
             description = "Return the saved poll")
     @ExtractUser(fieldName = "createdBy")
-    public ResponseEntity<Poll> savePoll(@Parameter(hidden = true) User createdBy, @Valid @RequestBody SavePollRequest request, BindingResult errors) {
-        if (errors.hasErrors()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Objects.requireNonNull(errors.getFieldError()).getDefaultMessage());
-        }
+    public ResponseEntity<Poll> savePoll(@Parameter(hidden = true) User createdBy, @Valid @RequestBody SavePollRequest request) {
         return new ResponseEntity<>(pollService.savePoll(createdBy, request), HttpStatus.OK);
     }
 
@@ -94,10 +88,7 @@ public class PollController {
             responseCode = "200",
             description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> addPollItems(@Parameter(hidden = true) User user, @PathVariable String id, @Valid @RequestBody AddPollItemsRequest request, BindingResult errors) {
-        if (errors.hasErrors()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Objects.requireNonNull(errors.getFieldError()).getDefaultMessage());
-        }
+    public ResponseEntity<Poll> addPollItems(@Parameter(hidden = true) User user, @PathVariable String id, @Valid @RequestBody AddPollItemsRequest request) {
         return new ResponseEntity<>(pollService.addPollItems(user, id, request), HttpStatus.OK);
     }
 
@@ -110,10 +101,7 @@ public class PollController {
             responseCode = "200",
             description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> deletePollItems(@Parameter(hidden = true) User user, @PathVariable String id, @Valid @RequestBody DeletePollItemsRequest request, BindingResult errors) {
-        if (errors.hasErrors()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Objects.requireNonNull(errors.getFieldError()).getDefaultMessage());
-        }
+    public ResponseEntity<Poll> deletePollItems(@Parameter(hidden = true) User user, @PathVariable String id, @Valid @RequestBody DeletePollItemsRequest request) {
         return new ResponseEntity<>(pollService.deletePollItems(user, id, request), HttpStatus.OK);
     }
 
