@@ -13,11 +13,9 @@ import voting.app.voting.app.model.common.UpdatableEntity;
 @Document(collection = "user")
 @Builder
 public class User extends UpdatableEntity {
-    @Id
-    private String id;
+    @Id private String id;
 
-    @Indexed
-    private String email;
+    @Indexed private String email;
 
     private String username;
 }

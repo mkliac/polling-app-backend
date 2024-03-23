@@ -1,6 +1,8 @@
 package voting.app.voting.app.aop;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -13,9 +15,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import voting.app.voting.app.constant.JwtConstants;
 import voting.app.voting.app.helper.JwtHelper;
-
-import java.util.Objects;
-import java.util.UUID;
 
 @Slf4j
 @Aspect
@@ -41,7 +40,9 @@ public class LogAspect {
     }
 
     private String getRequestInfoMsg(JoinPoint joinPoint) {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        HttpServletRequest request =
+                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                        .getRequest();
         StringBuilder message = new StringBuilder();
 
         message.append("[")
@@ -52,9 +53,7 @@ public class LogAspect {
         String token = request.getHeader(JwtConstants.AUTHORIZATION_HEADER);
         String userId = jwtHelper.getByClaimName(token, JwtConstants.CLAIM_EMAIL);
 
-        message.append(" [Requester] ")
-                .append(userId)
-                .append(" [Request Body] ");
+        message.append(" [Requester] ").append(userId).append(" [Request Body] ");
 
         String[] argNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
         if (argNames.length == 0) {

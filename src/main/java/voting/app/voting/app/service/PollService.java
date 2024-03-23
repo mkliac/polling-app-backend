@@ -1,5 +1,8 @@
 package voting.app.voting.app.service;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,10 +20,6 @@ import voting.app.voting.app.model.PollPriority;
 import voting.app.voting.app.model.User;
 import voting.app.voting.app.repository.PollItemRepository;
 import voting.app.voting.app.repository.PollRepository;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class PollService {
     }
 
     public List<Poll> getPolls(User user) {
-        //TODO: add options for filter
+        // TODO: add options for filter
         return pollRepository.findAll();
     }
 
@@ -54,27 +53,40 @@ public class PollService {
     }
 
     private Poll findPollByIdOrElseThrow(String id) {
-        return pollRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                            "Poll with id=" + id + " not found"));
+        return pollRepository
+                .findById(id)
+                .orElseThrow(
+                        () ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND, "Poll with id=" + id + " not found"));
     }
 
     private void validateSavePollRequest(SavePollRequest request) {
         if (request.getClosedDate() != null && request.getClosedDate().isBefore(Instant.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Closed date must be in the future");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Closed date must be in the future");
         }
 
         AppConfig.PollConfig pollConfig = appConfig.getPollConfig();
-        if (request.getTitle().length() < pollConfig.getMinTitleLength() || request.getTitle().length() > pollConfig.getMaxTitleLength()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title length must be between " + pollConfig.getMinTitleLength() + " and " + pollConfig.getMaxTitleLength());
+        if (request.getTitle().length() < pollConfig.getMinTitleLength()
+                || request.getTitle().length() > pollConfig.getMaxTitleLength()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Title length must be between "
+                            + pollConfig.getMinTitleLength()
+                            + " and "
+                            + pollConfig.getMaxTitleLength());
         }
 
         if (request.getDescription().length() > pollConfig.getMaxDescriptionLength()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description length must be less than " + pollConfig.getMaxDescriptionLength());
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Description length must be less than " + pollConfig.getMaxDescriptionLength());
         }
 
         if (request.getItems().size() > pollConfig.getMaxPollItems()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max poll items is " + pollConfig.getMaxPollItems());
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Max poll items is " + pollConfig.getMaxPollItems());
         }
     }
 
@@ -127,9 +139,13 @@ public class PollService {
     }
 
     private PollItem findPollItemByIdOrElseThrow(String id) {
-        return pollItemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Poll item with id=" + id + " not found"));
+        return pollItemRepository
+                .findById(id)
+                .orElseThrow(
+                        () ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Poll item with id=" + id + " not found"));
     }
 
     public Poll closePoll(User user, String pollId) {
@@ -145,16 +161,20 @@ public class PollService {
     public Poll vote(User user, String pollId, String pollItemId) {
         Poll poll = findPollByIdOrElseThrow(pollId);
         if (poll.getClosedDate() != null && poll.getClosedDate().isBefore(Instant.now())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Poll with id=" + pollId + " is closed");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Poll with id=" + pollId + " is closed");
         }
 
-        List<PollItem> pollItems = pollItemRepository.findAllByIdInAndVotersContaining(poll.getItems().stream().map(PollItem::getId).toList(), user);
+        List<PollItem> pollItems =
+                pollItemRepository.findAllByIdInAndVotersContaining(
+                        poll.getItems().stream().map(PollItem::getId).toList(), user);
         pollItems.forEach(p -> p.deleteVoter(user));
 
         PollItem pollItemToVote = findPollItemByIdOrElseThrow(pollItemId);
         pollItemToVote.addVoter(user);
 
-        pollItemRepository.saveAll(Stream.concat(pollItems.stream(), Stream.of(pollItemToVote)).toList());
+        pollItemRepository.saveAll(
+                Stream.concat(pollItems.stream(), Stream.of(pollItemToVote)).toList());
 
         return findPollByIdOrElseThrow(pollId);
     }

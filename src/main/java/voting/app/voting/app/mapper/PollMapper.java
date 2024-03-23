@@ -1,5 +1,6 @@
 package voting.app.voting.app.mapper;
 
+import java.util.List;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -8,8 +9,6 @@ import voting.app.voting.app.dto.SavePollRequest;
 import voting.app.voting.app.model.Poll;
 import voting.app.voting.app.model.PollItem;
 import voting.app.voting.app.model.User;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 @Component

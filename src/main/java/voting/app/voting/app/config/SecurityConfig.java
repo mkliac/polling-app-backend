@@ -13,17 +13,17 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-                                            //white list here
-                                            .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**")
-                                            .permitAll()
-                                            .anyRequest()
-                                            .authenticated());
+        http.authorizeHttpRequests(
+                auth ->
+                        auth
+                                // white list here
+                                .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated());
 
-        http.sessionManagement(sess ->
-                        sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth ->
-                        oauth.jwt(Customizer.withDefaults()));
+        http.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));
 
         return http.build();
     }

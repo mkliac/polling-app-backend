@@ -21,7 +21,9 @@ public class JwtHelper {
     }
 
     public String getCurrentRequestToken() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        HttpServletRequest request =
+                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                        .getRequest();
         return request.getHeader(JwtConstants.AUTHORIZATION_HEADER);
     }
 }

@@ -26,9 +26,7 @@ public class AppConfigController {
             tags = "AppConfig",
             summary = "Get App Config",
             description = "This endpoint is used to get app config")
-    @ApiResponse(
-            responseCode = "200",
-            description = "Return app config")
+    @ApiResponse(responseCode = "200", description = "Return app config")
     public ResponseEntity<AppConfig> getAppConfig() {
         return new ResponseEntity<>(appConfigService.getAppConfig(), HttpStatus.OK);
     }
