@@ -5,14 +5,17 @@ import java.util.List;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import voting.app.voting.app.config.AppConfig;
 import voting.app.voting.app.dto.AddPollItemsRequest;
 import voting.app.voting.app.dto.DeletePollItemsRequest;
+import voting.app.voting.app.dto.PollFilterType;
 import voting.app.voting.app.dto.SavePollRequest;
 import voting.app.voting.app.helper.OwnerValidator;
+import voting.app.voting.app.helper.PaginationHelper;
 import voting.app.voting.app.mapper.PollMapper;
 import voting.app.voting.app.model.Poll;
 import voting.app.voting.app.model.PollItem;
@@ -35,13 +38,30 @@ public class PollService {
 
     private final AppConfig appConfig;
 
+    private final PaginationHelper paginationHelper;
+
     public Poll getPoll(String id) {
         return findPollByIdOrElseThrow(id);
     }
 
-    public List<Poll> getPolls(User user) {
-        // TODO: add options for filter
-        return pollRepository.findAll();
+    public List<Poll> getPolls(
+            User user,
+            PollFilterType filterType,
+            String search,
+            boolean isAscending,
+            String sortBy,
+            Integer pageNumber,
+            Integer pageSize) {
+        Pageable pageable = paginationHelper.getPageable(pageNumber, pageSize, isAscending, sortBy);
+
+        List<Poll> polls;
+        switch (filterType) {
+            case ALL -> polls = pollRepository.findAll(search, pageable);
+            case USER -> polls = pollRepository.findAllByCreatedBy(user.getId(), search, pageable);
+            default -> polls = List.of();
+        }
+
+        return polls;
     }
 
     public void deletePoll(User user, String id) {

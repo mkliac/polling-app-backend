@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import voting.app.voting.app.aop.ExtractUser;
 import voting.app.voting.app.dto.AddPollItemsRequest;
 import voting.app.voting.app.dto.DeletePollItemsRequest;
+import voting.app.voting.app.dto.PollFilterType;
 import voting.app.voting.app.dto.SavePollRequest;
 import voting.app.voting.app.model.Poll;
 import voting.app.voting.app.model.User;
@@ -45,12 +46,19 @@ public class PollController {
     @ExtractUser(fieldName = "user")
     public ResponseEntity<List<Poll>> getPolls(
             @Parameter(hidden = true) User user,
+            @RequestParam(required = false, defaultValue = "ALL") PollFilterType filterType,
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(required = false, defaultValue = "true") boolean isAscending,
+            @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
             @RequestParam(
                             required = false,
-                            defaultValue = "${app-config.pagination.default-page-size}")
+                            defaultValue = "${app-config.pagination-config.default-page-size}")
                     Integer pageSize) {
-        return new ResponseEntity<>(pollService.getPolls(user), HttpStatus.OK);
+        return new ResponseEntity<>(
+                pollService.getPolls(
+                        user, filterType, search, isAscending, sortBy, pageNumber, pageSize),
+                HttpStatus.OK);
     }
 
     @PostMapping
