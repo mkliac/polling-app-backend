@@ -23,12 +23,12 @@ public class SavePollRequest {
 
     @NotNull(message = "isPrivate is required")
     @Schema(description = "Is the poll private", required = true)
-    private Boolean isPrivate;
+    private boolean isPrivate;
 
     @Schema(description = "Date when the poll will be closed")
     private Instant closedDate;
 
     @NotNull(message = "isAnonymous is required")
     @Schema(description = "Is the poll anonymous", required = true)
-    private Boolean isAnonymous;
+    private boolean isAnonymous;
 }

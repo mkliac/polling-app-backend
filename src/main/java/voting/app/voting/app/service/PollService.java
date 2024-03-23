@@ -10,13 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import voting.app.voting.app.config.AppConfig;
-import voting.app.voting.app.dto.AddPollItemsRequest;
-import voting.app.voting.app.dto.DeletePollItemsRequest;
-import voting.app.voting.app.dto.PollFilterType;
-import voting.app.voting.app.dto.SavePollRequest;
+import voting.app.voting.app.dto.*;
 import voting.app.voting.app.helper.OwnerValidator;
 import voting.app.voting.app.helper.PaginationHelper;
 import voting.app.voting.app.mapper.PollMapper;
+import voting.app.voting.app.mapper.UserMapper;
 import voting.app.voting.app.model.Poll;
 import voting.app.voting.app.model.PollItem;
 import voting.app.voting.app.model.PollPriority;
@@ -34,17 +32,19 @@ public class PollService {
 
     private final PollMapper pollMapper;
 
+    private final UserMapper userMapper;
+
     private final OwnerValidator ownerValidator;
 
     private final AppConfig appConfig;
 
     private final PaginationHelper paginationHelper;
 
-    public Poll getPoll(String id) {
-        return findPollByIdOrElseThrow(id);
+    public PollDto getPoll(String id) {
+        return pollMapper.toPollDto(findPollByIdOrElseThrow(id));
     }
 
-    public List<Poll> getPolls(
+    public List<PollDto> getPolls(
             User user,
             PollFilterType filterType,
             String search,
@@ -61,7 +61,7 @@ public class PollService {
             default -> polls = List.of();
         }
 
-        return polls;
+        return pollMapper.toPollDtos(polls);
     }
 
     public void deletePoll(User user, String id) {
@@ -110,17 +110,17 @@ public class PollService {
         }
     }
 
-    public Poll savePoll(User createdBy, SavePollRequest request) {
+    public PollDto savePoll(User createdBy, SavePollRequest request) {
         validateSavePollRequest(request);
         Poll poll = pollMapper.fromSavePollRequest(createdBy, request);
         poll.setPriority(PollPriority.NORMAL);
 
         pollItemRepository.saveAll(poll.getItems());
         poll = pollRepository.save(poll);
-        return poll;
+        return pollMapper.toPollDto(poll);
     }
 
-    public Poll addPollItems(User user, String pollId, AddPollItemsRequest request) {
+    public PollDto addPollItems(User user, String pollId, AddPollItemsRequest request) {
         Poll poll = findPollByIdOrElseThrow(pollId);
         ownerValidator.isOwner(user, poll);
 
@@ -130,10 +130,10 @@ public class PollService {
         pollItemRepository.saveAll(pollItems);
         poll = pollRepository.save(poll);
 
-        return poll;
+        return pollMapper.toPollDto(poll);
     }
 
-    public Poll deletePollItems(User user, String pollId, DeletePollItemsRequest request) {
+    public PollDto deletePollItems(User user, String pollId, DeletePollItemsRequest request) {
         Poll poll = findPollByIdOrElseThrow(pollId);
         ownerValidator.isOwner(user, poll);
 
@@ -143,10 +143,10 @@ public class PollService {
         pollItemRepository.deleteAllById(itemIds);
         poll = pollRepository.save(poll);
 
-        return poll;
+        return pollMapper.toPollDto(poll);
     }
 
-    public Poll updatePollItem(User user, String pollId, String pollItemId, String newText) {
+    public PollDto updatePollItem(User user, String pollId, String pollItemId, String newText) {
         Poll poll = findPollByIdOrElseThrow(pollId);
         ownerValidator.isOwner(user, poll);
 
@@ -155,7 +155,7 @@ public class PollService {
         pollItem.setText(newText);
         pollItemRepository.save(pollItem);
 
-        return poll;
+        return pollMapper.toPollDto(poll);
     }
 
     private PollItem findPollItemByIdOrElseThrow(String id) {
@@ -168,17 +168,17 @@ public class PollService {
                                         "Poll item with id=" + id + " not found"));
     }
 
-    public Poll closePoll(User user, String pollId) {
+    public PollDto closePoll(User user, String pollId) {
         Poll poll = findPollByIdOrElseThrow(pollId);
         ownerValidator.isOwner(user, poll);
 
         poll.setClosedDate(Instant.now());
         poll = pollRepository.save(poll);
 
-        return poll;
+        return pollMapper.toPollDto(poll);
     }
 
-    public Poll vote(User user, String pollId, String pollItemId) {
+    public PollDto vote(User user, String pollId, String pollItemId) {
         Poll poll = findPollByIdOrElseThrow(pollId);
         if (poll.getClosedDate() != null && poll.getClosedDate().isBefore(Instant.now())) {
             throw new ResponseStatusException(
@@ -196,11 +196,11 @@ public class PollService {
         pollItemRepository.saveAll(
                 Stream.concat(pollItems.stream(), Stream.of(pollItemToVote)).toList());
 
-        return findPollByIdOrElseThrow(pollId);
+        return pollMapper.toPollDto(findPollByIdOrElseThrow(pollId));
     }
 
-    public List<User> getVoters(String itemId) {
+    public List<UserDto> getVoters(String itemId) {
         PollItem pollItem = findPollItemByIdOrElseThrow(itemId);
-        return pollItem.getVoters().stream().toList();
+        return userMapper.toUserDtos(pollItem.getVoters().stream().toList());
     }
 }

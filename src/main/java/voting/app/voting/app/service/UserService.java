@@ -2,6 +2,8 @@ package voting.app.voting.app.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import voting.app.voting.app.dto.UserDto;
+import voting.app.voting.app.mapper.UserMapper;
 import voting.app.voting.app.model.User;
 import voting.app.voting.app.repository.UserRepository;
 
@@ -10,7 +12,9 @@ import voting.app.voting.app.repository.UserRepository;
 public class UserService {
     private final UserRepository userRepository;
 
-    public User saveUser(User user) {
-        return userRepository.save(user);
+    private final UserMapper userMapper;
+
+    public UserDto saveUser(User user) {
+        return userMapper.toUserDto(userRepository.save(user));
     }
 }

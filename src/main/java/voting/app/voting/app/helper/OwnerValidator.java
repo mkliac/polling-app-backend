@@ -8,7 +8,7 @@ import voting.app.voting.app.model.common.CreatableEntity;
 
 @Component
 public class OwnerValidator {
-    public <T extends CreatableEntity> Boolean isOwner(User user, T object) {
+    public <T extends CreatableEntity> boolean isOwner(User user, T object) {
         return user.getId().equals(object.getCreatedBy().getId());
     }
 

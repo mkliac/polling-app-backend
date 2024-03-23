@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import voting.app.voting.app.aop.ExtractUser;
+import voting.app.voting.app.dto.UserDto;
 import voting.app.voting.app.model.User;
 import voting.app.voting.app.service.UserService;
 
@@ -29,7 +30,7 @@ public class UserController {
             description = "This endpoint is used to save and login a user")
     @ApiResponse(responseCode = "200", description = "Return the logged in user")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<User> saveUser(User user) {
+    public ResponseEntity<UserDto> saveUser(User user) {
         return new ResponseEntity<>(userService.saveUser(user), HttpStatus.OK);
     }
 }

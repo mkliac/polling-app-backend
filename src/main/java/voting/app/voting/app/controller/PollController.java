@@ -11,11 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import voting.app.voting.app.aop.ExtractUser;
-import voting.app.voting.app.dto.AddPollItemsRequest;
-import voting.app.voting.app.dto.DeletePollItemsRequest;
-import voting.app.voting.app.dto.PollFilterType;
-import voting.app.voting.app.dto.SavePollRequest;
-import voting.app.voting.app.model.Poll;
+import voting.app.voting.app.dto.*;
 import voting.app.voting.app.model.User;
 import voting.app.voting.app.service.PollService;
 
@@ -33,7 +29,7 @@ public class PollController {
             summary = "Get Poll",
             description = "This endpoint is used to get a poll by id")
     @ApiResponse(responseCode = "200", description = "Return the poll by id")
-    public ResponseEntity<Poll> getPoll(@PathVariable String id) {
+    public ResponseEntity<PollDto> getPoll(@PathVariable String id) {
         return new ResponseEntity<>(pollService.getPoll(id), HttpStatus.OK);
     }
 
@@ -44,7 +40,7 @@ public class PollController {
             description = "This endpoint is used to get all user's polls")
     @ApiResponse(responseCode = "200", description = "Return all user's polls")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<List<Poll>> getPolls(
+    public ResponseEntity<List<PollDto>> getPolls(
             @Parameter(hidden = true) User user,
             @RequestParam(required = false, defaultValue = "ALL") PollFilterType filterType,
             @RequestParam(required = false, defaultValue = "") String search,
@@ -68,7 +64,7 @@ public class PollController {
             description = "This endpoint is used to save a poll")
     @ApiResponse(responseCode = "200", description = "Return the saved poll")
     @ExtractUser(fieldName = "createdBy")
-    public ResponseEntity<Poll> savePoll(
+    public ResponseEntity<PollDto> savePoll(
             @Parameter(hidden = true) User createdBy, @Valid @RequestBody SavePollRequest request) {
         return new ResponseEntity<>(pollService.savePoll(createdBy, request), HttpStatus.OK);
     }
@@ -93,7 +89,7 @@ public class PollController {
             description = "This endpoint is used to add extra items to a poll")
     @ApiResponse(responseCode = "200", description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> addPollItems(
+    public ResponseEntity<PollDto> addPollItems(
             @Parameter(hidden = true) User user,
             @PathVariable String id,
             @Valid @RequestBody AddPollItemsRequest request) {
@@ -107,7 +103,7 @@ public class PollController {
             description = "This endpoint is used to delete items from a poll")
     @ApiResponse(responseCode = "200", description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> deletePollItems(
+    public ResponseEntity<PollDto> deletePollItems(
             @Parameter(hidden = true) User user,
             @PathVariable String id,
             @Valid @RequestBody DeletePollItemsRequest request) {
@@ -121,7 +117,7 @@ public class PollController {
             description = "This endpoint is used to update a poll item")
     @ApiResponse(responseCode = "200", description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> updatePollItem(
+    public ResponseEntity<PollDto> updatePollItem(
             @Parameter(hidden = true) User user,
             @PathVariable String id,
             @PathVariable String itemId,
@@ -137,7 +133,7 @@ public class PollController {
             description = "This endpoint is used to vote on a poll item")
     @ApiResponse(responseCode = "200", description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> vote(
+    public ResponseEntity<PollDto> vote(
             @Parameter(hidden = true) User user,
             @PathVariable String id,
             @PathVariable String itemId) {
@@ -151,7 +147,7 @@ public class PollController {
             description = "This endpoint is used to close a poll")
     @ApiResponse(responseCode = "200", description = "Return the updated poll")
     @ExtractUser(fieldName = "user")
-    public ResponseEntity<Poll> closePoll(
+    public ResponseEntity<PollDto> closePoll(
             @Parameter(hidden = true) User user, @PathVariable String id) {
         return new ResponseEntity<>(pollService.closePoll(user, id), HttpStatus.OK);
     }
@@ -162,7 +158,7 @@ public class PollController {
             summary = "Get Voters",
             description = "This endpoint is used to get voters of a poll item")
     @ApiResponse(responseCode = "200", description = "Return the voters of a poll item")
-    public ResponseEntity<List<User>> getVoters(@PathVariable String id) {
+    public ResponseEntity<List<UserDto>> getVoters(@PathVariable String id) {
         return new ResponseEntity<>(pollService.getVoters(id), HttpStatus.OK);
     }
 }
