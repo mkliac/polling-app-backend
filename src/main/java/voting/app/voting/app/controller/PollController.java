@@ -158,7 +158,13 @@ public class PollController {
             summary = "Get Voters",
             description = "This endpoint is used to get voters of a poll item")
     @ApiResponse(responseCode = "200", description = "Return the voters of a poll item")
-    public ResponseEntity<List<UserDto>> getVoters(@PathVariable String id) {
-        return new ResponseEntity<>(pollService.getVoters(id), HttpStatus.OK);
+    public ResponseEntity<List<UserDto>> getVoters(
+            @PathVariable String id,
+            @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(
+                            required = false,
+                            defaultValue = "${app-config.pagination-config.default-page-size}")
+                    Integer pageSize) {
+        return new ResponseEntity<>(pollService.getVoters(id, pageNumber, pageSize), HttpStatus.OK);
     }
 }

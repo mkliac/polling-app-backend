@@ -2,7 +2,6 @@ package voting.app.voting.app.service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -15,12 +14,11 @@ import voting.app.voting.app.helper.OwnerValidator;
 import voting.app.voting.app.helper.PaginationHelper;
 import voting.app.voting.app.mapper.PollMapper;
 import voting.app.voting.app.mapper.UserMapper;
-import voting.app.voting.app.model.Poll;
-import voting.app.voting.app.model.PollItem;
-import voting.app.voting.app.model.PollPriority;
-import voting.app.voting.app.model.User;
+import voting.app.voting.app.model.*;
 import voting.app.voting.app.repository.PollItemRepository;
 import voting.app.voting.app.repository.PollRepository;
+import voting.app.voting.app.repository.UserRepository;
+import voting.app.voting.app.repository.VoteRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +27,10 @@ public class PollService {
     private final PollRepository pollRepository;
 
     private final PollItemRepository pollItemRepository;
+
+    private final VoteRepository voteRepository;
+
+    private final UserRepository userRepository;
 
     private final PollMapper pollMapper;
 
@@ -185,22 +187,21 @@ public class PollService {
                     HttpStatus.NOT_FOUND, "Poll with id=" + pollId + " is closed");
         }
 
-        List<PollItem> pollItems =
-                pollItemRepository.findAllByIdInAndVotersContaining(
-                        poll.getItems().stream().map(PollItem::getId).toList(), user);
-        pollItems.forEach(p -> p.deleteVoter(user));
-
-        PollItem pollItemToVote = findPollItemByIdOrElseThrow(pollItemId);
-        pollItemToVote.addVoter(user);
-
-        pollItemRepository.saveAll(
-                Stream.concat(pollItems.stream(), Stream.of(pollItemToVote)).toList());
-
-        return pollMapper.toPollDto(findPollByIdOrElseThrow(pollId));
+        voteRepository.deleteAllByVoteIdIn(
+                poll.getItems().stream()
+                        .map(item -> new VoteId(user.getId(), item.getId()))
+                        .toList());
+        voteRepository.save(new Vote(new VoteId(user.getId(), pollItemId)));
+        return pollMapper.toPollDto(poll);
     }
 
-    public List<UserDto> getVoters(String itemId) {
-        PollItem pollItem = findPollItemByIdOrElseThrow(itemId);
-        return userMapper.toUserDtos(pollItem.getVoters().stream().toList());
+    public List<UserDto> getVoters(String itemId, Integer pageNumber, Integer pageSize) {
+        Pageable pageable = paginationHelper.getPageable(pageNumber, pageSize, true);
+        List<Vote> votes = voteRepository.findAllByVoteIdPollItemId(itemId, pageable);
+        List<User> users =
+                userRepository.findAllByIdIn(
+                        votes.stream().map(Vote::getVoteId).map(VoteId::getUserId).toList());
+
+        return userMapper.toUserDtos(users);
     }
 }

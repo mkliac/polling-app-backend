@@ -24,4 +24,6 @@ public class PollDto {
     private boolean isAnonymous;
 
     private UserDto createdBy;
+
+    private Instant createdAt;
 }

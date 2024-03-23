@@ -22,9 +22,15 @@ public class PaginationHelper {
             pageSize = appConfig.getPaginationConfig().getMaxPageSize();
         }
 
-        return PageRequest.of(
-                pageNumber,
-                pageSize,
-                Sort.by(isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+
+        if (sortBy.length > 0) {
+            pageable =
+                    pageable.withSort(
+                            Sort.by(
+                                    isAscending ? Sort.Direction.ASC : Sort.Direction.DESC,
+                                    sortBy));
+        }
+        return pageable;
     }
 }
