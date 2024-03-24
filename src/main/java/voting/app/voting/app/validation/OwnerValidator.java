@@ -1,4 +1,4 @@
-package voting.app.voting.app.helper;
+package voting.app.voting.app.validation;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

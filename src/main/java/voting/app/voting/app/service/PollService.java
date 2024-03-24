@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import voting.app.voting.app.config.AppConfig;
 import voting.app.voting.app.dto.*;
-import voting.app.voting.app.helper.OwnerValidator;
 import voting.app.voting.app.helper.PaginationHelper;
 import voting.app.voting.app.mapper.PollMapper;
 import voting.app.voting.app.mapper.UserMapper;
@@ -19,6 +18,7 @@ import voting.app.voting.app.repository.PollItemRepository;
 import voting.app.voting.app.repository.PollRepository;
 import voting.app.voting.app.repository.UserRepository;
 import voting.app.voting.app.repository.VoteRepository;
+import voting.app.voting.app.validation.OwnerValidator;
 
 @Service
 @RequiredArgsConstructor

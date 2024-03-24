@@ -5,8 +5,9 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 import lombok.Data;
+import voting.app.voting.app.validation.NonEmptyFields;
 
 @Data
 public class SavePollRequest {
@@ -18,8 +19,9 @@ public class SavePollRequest {
     private String description = "";
 
     @Size(min = 2, message = "At least two items are required")
+    @NonEmptyFields(message = "Item cannot be empty or null")
     @Schema(description = "List of items for the poll", required = true)
-    private List<String> items;
+    private Set<String> items;
 
     @NotNull(message = "isPrivate is required")
     @Schema(description = "Is the poll private", required = true)
