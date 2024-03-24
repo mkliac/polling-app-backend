@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.Set;
 import lombok.Data;
 import voting.app.voting.app.validation.NonEmptyFields;
+import voting.app.voting.app.validation.ValidDate;
 
 @Data
 public class SavePollRequest {
@@ -27,6 +28,7 @@ public class SavePollRequest {
     @Schema(description = "Is the poll private", required = true)
     private boolean isPrivate;
 
+    @ValidDate(isFuture = true, nullable = true, message = "Closed date must be in the future")
     @Schema(description = "Date when the poll will be closed")
     private Instant closedDate;
 

@@ -84,11 +84,6 @@ public class PollService {
     }
 
     private void validateSavePollRequest(SavePollRequest request) {
-        if (request.getClosedDate() != null && request.getClosedDate().isBefore(Instant.now())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Closed date must be in the future");
-        }
-
         AppConfig.PollConfig pollConfig = appConfig.getPollConfig();
         if (request.getTitle().length() < pollConfig.getMinTitleLength()
                 || request.getTitle().length() > pollConfig.getMaxTitleLength()) {
