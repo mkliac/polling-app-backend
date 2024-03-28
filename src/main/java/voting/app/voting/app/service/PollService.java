@@ -59,6 +59,17 @@ public class PollService {
         switch (filterType) {
             case ALL -> polls = pollRepository.findAll(search, pageable);
             case USER -> polls = pollRepository.findAllByCreatedBy(user.getId(), search, pageable);
+            case BOOKMARKED -> {
+                // NOTE: Might not be the most efficient way to get bookmarked polls by page
+                List<String> bookmarkedPollIds =
+                        bookmarkRepository.findAllByBookmarkIdUserId(user.getId()).stream()
+                                .map(Bookmark::getBookmarkId)
+                                .map(BookmarkId::getPollId)
+                                .toList();
+                polls =
+                        pollRepository.findAllByBookmark(
+                                bookmarkedPollIds, user.getId(), search, pageable);
+            }
             default -> polls = List.of();
         }
 
@@ -69,6 +80,9 @@ public class PollService {
         Poll poll = findPollByIdOrElseThrow(id);
         ownerValidator.isOwnerOrElseThrow(user, poll);
 
+        voteRepository.deleteAllByVoteIdPollItemIdIn(
+                poll.getItems().stream().map(PollItem::getId).toList());
+        bookmarkRepository.deleteAllByBookmarkIdPollId(id);
         pollItemRepository.deleteAll(poll.getItems());
         pollRepository.delete(poll);
     }

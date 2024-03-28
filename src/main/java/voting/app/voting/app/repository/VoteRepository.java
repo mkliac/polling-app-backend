@@ -13,6 +13,9 @@ public interface VoteRepository extends MongoRepository<Vote, VoteId> {
     @Transactional
     void deleteAllByVoteIdIn(List<VoteId> voteIds);
 
+    @Transactional
+    void deleteAllByVoteIdPollItemIdIn(List<String> itemIds);
+
     List<Vote> findAllByVoteIdPollItemId(String pollItemId, Pageable pageable);
 
     Integer countByVoteIdPollItemId(String pollItemId);
