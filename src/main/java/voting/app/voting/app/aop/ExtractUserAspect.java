@@ -11,14 +11,12 @@ import org.springframework.stereotype.Component;
 import voting.app.voting.app.constant.JwtConstants;
 import voting.app.voting.app.helper.JwtHelper;
 import voting.app.voting.app.model.User;
-import voting.app.voting.app.repository.UserRepository;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class ExtractUserAspect {
     private final JwtHelper jwtHelper;
-    private final UserRepository userRepository;
 
     @Around("@annotation(ExtractUser)")
     public Object pointcutExtractUser(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -37,8 +35,6 @@ public class ExtractUserAspect {
     private User searchOrCreateUser(String token) {
         String email = jwtHelper.getByClaimName(token, JwtConstants.CLAIM_EMAIL),
                 name = jwtHelper.getByClaimName(token, JwtConstants.CLAIM_NAME);
-        return userRepository
-                .findByEmail(email)
-                .orElse(User.builder().email(email).username(name).build());
+        return User.builder().id(email).username(name).build();
     }
 }

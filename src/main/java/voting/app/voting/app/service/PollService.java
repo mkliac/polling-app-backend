@@ -14,10 +14,7 @@ import voting.app.voting.app.helper.PaginationHelper;
 import voting.app.voting.app.mapper.PollMapper;
 import voting.app.voting.app.mapper.UserMapper;
 import voting.app.voting.app.model.*;
-import voting.app.voting.app.repository.PollItemRepository;
-import voting.app.voting.app.repository.PollRepository;
-import voting.app.voting.app.repository.UserRepository;
-import voting.app.voting.app.repository.VoteRepository;
+import voting.app.voting.app.repository.*;
 import voting.app.voting.app.validation.OwnerValidator;
 
 @Service
@@ -32,6 +29,8 @@ public class PollService {
 
     private final UserRepository userRepository;
 
+    private final BookmarkRepository bookmarkRepository;
+
     private final PollMapper pollMapper;
 
     private final UserMapper userMapper;
@@ -42,8 +41,8 @@ public class PollService {
 
     private final PaginationHelper paginationHelper;
 
-    public PollDto getPoll(String id) {
-        return pollMapper.toPollDto(findPollByIdOrElseThrow(id));
+    public PollDto getPoll(User user, String id) {
+        return pollMapper.toPollDto(findPollByIdOrElseThrow(id), user);
     }
 
     public List<PollDto> getPolls(
@@ -63,7 +62,7 @@ public class PollService {
             default -> polls = List.of();
         }
 
-        return pollMapper.toPollDtos(polls);
+        return pollMapper.toPollDtos(polls, user);
     }
 
     public void deletePoll(User user, String id) {
@@ -140,7 +139,7 @@ public class PollService {
         pollItemRepository.deleteAllById(itemIds);
         poll = pollRepository.save(poll);
 
-        return pollMapper.toPollDto(poll);
+        return pollMapper.toPollDto(poll, user);
     }
 
     public PollDto updatePollItem(User user, String pollId, String pollItemId, String newText) {
@@ -152,7 +151,7 @@ public class PollService {
         pollItem.setText(newText);
         pollItemRepository.save(pollItem);
 
-        return pollMapper.toPollDto(poll);
+        return pollMapper.toPollDto(poll, user);
     }
 
     private PollItem findPollItemByIdOrElseThrow(String id) {
@@ -172,7 +171,7 @@ public class PollService {
         poll.setClosedDate(Instant.now());
         poll = pollRepository.save(poll);
 
-        return pollMapper.toPollDto(poll);
+        return pollMapper.toPollDto(poll, user);
     }
 
     public PollDto vote(User user, String pollId, String pollItemId) {
@@ -187,7 +186,7 @@ public class PollService {
                         .map(item -> new VoteId(user.getId(), item.getId()))
                         .toList());
         voteRepository.save(new Vote(new VoteId(user.getId(), pollItemId)));
-        return pollMapper.toPollDto(poll);
+        return pollMapper.toPollDto(poll, user);
     }
 
     public List<UserDto> getVoters(String itemId, Integer pageNumber, Integer pageSize) {
@@ -198,5 +197,16 @@ public class PollService {
                         votes.stream().map(Vote::getVoteId).map(VoteId::getUserId).toList());
 
         return userMapper.toUserDtos(users);
+    }
+
+    public void bookmarkPoll(User user, String pollId, boolean isBookmark) {
+        Bookmark bookmark = new Bookmark(new BookmarkId(user.getId(), pollId));
+
+        if (isBookmark) {
+            findPollByIdOrElseThrow(pollId);
+            bookmarkRepository.save(bookmark);
+        } else {
+            bookmarkRepository.delete(bookmark);
+        }
     }
 }

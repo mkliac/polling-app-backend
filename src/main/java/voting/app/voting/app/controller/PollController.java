@@ -29,8 +29,10 @@ public class PollController {
             summary = "Get Poll",
             description = "This endpoint is used to get a poll by id")
     @ApiResponse(responseCode = "200", description = "Return the poll by id")
-    public ResponseEntity<PollDto> getPoll(@PathVariable String id) {
-        return new ResponseEntity<>(pollService.getPoll(id), HttpStatus.OK);
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<PollDto> getPoll(
+            @Parameter(hidden = true) User user, @PathVariable String id) {
+        return new ResponseEntity<>(pollService.getPoll(user, id), HttpStatus.OK);
     }
 
     @GetMapping
@@ -166,5 +168,20 @@ public class PollController {
                             defaultValue = "${app-config.pagination-config.default-page-size}")
                     Integer pageSize) {
         return new ResponseEntity<>(pollService.getVoters(id, pageNumber, pageSize), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/bookmark")
+    @Operation(
+            tags = "Poll",
+            summary = "Bookmark Poll",
+            description = "This endpoint is used to bookmark a poll")
+    @ApiResponse(responseCode = "200", description = "Void")
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<Void> bookmarkPoll(
+            @Parameter(hidden = true) User user,
+            @PathVariable String id,
+            @RequestParam boolean isBookmark) {
+        pollService.bookmarkPoll(user, id, isBookmark);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

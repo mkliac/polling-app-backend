@@ -9,4 +9,6 @@ public class PollItemDto {
     private String text;
 
     private Integer voteCount;
+
+    private boolean isVoted;
 }

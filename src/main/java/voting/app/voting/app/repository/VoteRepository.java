@@ -16,4 +16,6 @@ public interface VoteRepository extends MongoRepository<Vote, VoteId> {
     List<Vote> findAllByVoteIdPollItemId(String pollItemId, Pageable pageable);
 
     Integer countByVoteIdPollItemId(String pollItemId);
+
+    List<Vote> findAllByVoteIdIn(List<VoteId> voteIds);
 }

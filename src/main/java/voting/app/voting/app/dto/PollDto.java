@@ -15,13 +15,15 @@ public class PollDto {
 
     private List<PollItemDto> items;
 
-    private boolean isPrivate;
-
-    private Instant closedDate;
-
     private PollPriority priority;
 
+    private boolean isPrivate;
+
     private boolean isAnonymous;
+
+    private boolean isBookmarked;
+
+    private Instant closedDate;
 
     private UserDto createdBy;
 

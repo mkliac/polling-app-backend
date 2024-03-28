@@ -26,4 +26,8 @@ public class JwtHelper {
                         .getRequest();
         return request.getHeader(JwtConstants.AUTHORIZATION_HEADER);
     }
+
+    public String getCurrentUserId() {
+        return getByClaimName(getCurrentRequestToken(), JwtConstants.CLAIM_EMAIL);
+    }
 }
