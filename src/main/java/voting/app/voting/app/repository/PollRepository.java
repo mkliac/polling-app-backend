@@ -29,12 +29,10 @@ public interface PollRepository extends MongoRepository<Poll, String> {
     @Query(
             "{$and: ["
                     + "{'id': {$in: ?0}}, "
-                    + "{'createdBy.id': ?1}, "
                     + "{$or: ["
-                    + "{'title': {$regex: ?2, $options: 'i'}}, "
-                    + "{'description': {$regex: ?2, $options: 'i'}}"
+                    + "{'title': {$regex: ?1, $options: 'i'}}, "
+                    + "{'description': {$regex: ?1, $options: 'i'}}"
                     + "]}"
                     + "]}")
-    List<Poll> findAllByBookmark(
-            List<String> pollIds, String userId, String filter, Pageable pageable);
+    List<Poll> findAllByBookmark(List<String> pollIds, String filter, Pageable pageable);
 }

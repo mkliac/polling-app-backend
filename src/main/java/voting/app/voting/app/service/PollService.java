@@ -66,9 +66,7 @@ public class PollService {
                                 .map(Bookmark::getBookmarkId)
                                 .map(BookmarkId::getPollId)
                                 .toList();
-                polls =
-                        pollRepository.findAllByBookmark(
-                                bookmarkedPollIds, user.getId(), search, pageable);
+                polls = pollRepository.findAllByBookmark(bookmarkedPollIds, search, pageable);
             }
             default -> polls = List.of();
         }
