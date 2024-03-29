@@ -17,4 +17,8 @@ public class UserService {
     public UserDto saveUser(User user) {
         return userMapper.toUserDto(userRepository.save(user));
     }
+
+    public UserDto getUser(String email) {
+        return userMapper.toUserDto(userRepository.findById(email).orElse(null));
+    }
 }

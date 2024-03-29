@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import voting.app.voting.app.constant.JwtConstants;
+import voting.app.voting.app.model.User;
 
 @Component
 public class JwtHelper {
@@ -29,5 +30,15 @@ public class JwtHelper {
 
     public String getCurrentUserId() {
         return getByClaimName(getCurrentRequestToken(), JwtConstants.CLAIM_EMAIL);
+    }
+
+    public User getUser(String token) {
+        String email = getByClaimName(token, JwtConstants.CLAIM_EMAIL),
+                name = getByClaimName(token, JwtConstants.CLAIM_NAME);
+        return User.builder().id(email).username(name).build();
+    }
+
+    public User getCurrentUser() {
+        return getUser(getCurrentRequestToken());
     }
 }

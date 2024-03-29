@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import voting.app.voting.app.config.GoogleConfig;
 import voting.app.voting.app.dto.google.AuthResponse;
 import voting.app.voting.app.feignclient.IGoogleClient;
+import voting.app.voting.app.helper.JwtHelper;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,10 @@ public class GoogleAuthService {
     private final IGoogleClient googleClient;
 
     private final GoogleConfig googleConfig;
+
+    private final UserService userService;
+
+    private final JwtHelper jwtHelper;
 
     private Map<String, String> getClientSecrets() {
         return new HashMap<>(
@@ -38,6 +43,7 @@ public class GoogleAuthService {
         AuthResponse response;
         try {
             response = googleClient.getToken(data);
+            userService.saveUser(jwtHelper.getUser(response.getIdToken()));
         } catch (Exception e) {
             log.error("Error while getting tokens from google", e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

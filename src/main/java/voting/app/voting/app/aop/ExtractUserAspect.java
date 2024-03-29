@@ -8,9 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import voting.app.voting.app.constant.JwtConstants;
 import voting.app.voting.app.helper.JwtHelper;
-import voting.app.voting.app.model.User;
 
 @Aspect
 @Component
@@ -27,14 +25,8 @@ public class ExtractUserAspect {
         int idx = Arrays.asList(argNames).indexOf(extractUser.fieldName());
         if (idx == -1) throw new Exception();
         Object[] args = joinPoint.getArgs();
-        args[idx] = searchOrCreateUser(jwtHelper.getCurrentRequestToken());
+        args[idx] = jwtHelper.getCurrentUser();
 
         return joinPoint.proceed(args);
-    }
-
-    private User searchOrCreateUser(String token) {
-        String email = jwtHelper.getByClaimName(token, JwtConstants.CLAIM_EMAIL),
-                name = jwtHelper.getByClaimName(token, JwtConstants.CLAIM_NAME);
-        return User.builder().id(email).username(name).build();
     }
 }
