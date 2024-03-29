@@ -22,8 +22,12 @@ public class GoogleAuthService {
     private Map<String, String> getClientSecrets() {
         return new HashMap<>(
                 Map.of(
-                        "client_id", googleConfig.getClientId(),
-                        "client_secret", googleConfig.getClientSecret()));
+                        "client_id",
+                        googleConfig.getClientId(),
+                        "client_secret",
+                        googleConfig.getClientSecret(),
+                        "scope",
+                        "openid profile email"));
     }
 
     public AuthResponse getTokens(String code, String redirectUri) {
