@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import voting.app.voting.app.config.GoogleConfig;
+import voting.app.voting.app.constant.JwtConstants;
 import voting.app.voting.app.dto.google.AuthResponse;
 import voting.app.voting.app.feignclient.IGoogleClient;
 import voting.app.voting.app.helper.JwtHelper;
@@ -43,7 +44,8 @@ public class GoogleAuthService {
         AuthResponse response;
         try {
             response = googleClient.getToken(data);
-            userService.saveUser(jwtHelper.getUser(response.getIdToken()));
+            userService.saveUser(
+                    jwtHelper.getUser(JwtConstants.BEARER_PREFIX + response.getIdToken()));
         } catch (Exception e) {
             log.error("Error while getting tokens from google", e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
