@@ -34,8 +34,9 @@ public class JwtHelper {
 
     public User getUser(String token) {
         String email = getByClaimName(token, JwtConstants.CLAIM_EMAIL),
-                name = getByClaimName(token, JwtConstants.CLAIM_NAME);
-        return User.builder().id(email).username(name).build();
+                name = getByClaimName(token, JwtConstants.CLAIM_NAME),
+                picture = getByClaimName(token, JwtConstants.CLAIM_PICTURE);
+        return User.builder().id(email).username(name).picture(picture).build();
     }
 
     public User getCurrentUser() {

@@ -9,6 +9,8 @@ public class UserDto {
 
     private String username;
 
+    private String picture;
+
     private Instant createdAt;
 
     private Instant updatedAt;

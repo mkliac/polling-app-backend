@@ -15,4 +15,6 @@ public class User extends UpdatableEntity {
     @Id private String id;
 
     private String username;
+
+    private String picture;
 }
