@@ -1,11 +1,8 @@
+google-config:
+  client-id: toBeModified
+  client-secret: toBeModified
+
 spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: toBeModified
-            client-secret: toBeModified
   data:
     mongodb:
       uri: toBeModified
