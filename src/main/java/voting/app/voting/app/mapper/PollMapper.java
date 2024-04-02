@@ -29,6 +29,10 @@ public abstract class PollMapper {
 
     public abstract List<PollItem> fromItemNames(List<String> names);
 
+    @Mapping(
+            target = "createdBy",
+            source = "createdBy",
+            conditionExpression = "java(!poll.isAnonymous())")
     public abstract PollDto toPollDto(Poll poll);
 
     public abstract List<PollDto> toPollDtos(List<Poll> polls);
@@ -51,7 +55,6 @@ public abstract class PollMapper {
                         .map(Vote::getVoteId)
                         .map(VoteId::getPollItemId)
                         .orElse(null);
-        System.out.println(voteItemId);
         pollDto.getItems().forEach(item -> item.setVoted(item.getId().equals(voteItemId)));
 
         return pollDto;

@@ -201,7 +201,13 @@ public class PollService {
         return pollMapper.toPollDto(poll, user);
     }
 
-    public List<UserDto> getVoters(String itemId, Integer pageNumber, Integer pageSize) {
+    public List<UserDto> getVoters(
+            String pollId, String itemId, Integer pageNumber, Integer pageSize) {
+        if (findPollByIdOrElseThrow(pollId).isAnonymous()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Poll with id=" + pollId + " is anonymous");
+        }
+
         Pageable pageable = paginationHelper.getPageable(pageNumber, pageSize, true);
         List<Vote> votes = voteRepository.findAllByVoteIdPollItemId(itemId, pageable);
         List<User> users =

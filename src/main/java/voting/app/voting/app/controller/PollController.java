@@ -46,7 +46,7 @@ public class PollController {
             @Parameter(hidden = true) User user,
             @RequestParam(required = false, defaultValue = "ALL") PollFilterType filterType,
             @RequestParam(required = false, defaultValue = "") String search,
-            @RequestParam(required = false, defaultValue = "true") boolean isAscending,
+            @RequestParam(required = false, defaultValue = "false") boolean isAscending,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
             @RequestParam(
@@ -128,6 +128,18 @@ public class PollController {
                 pollService.updatePollItem(user, id, itemId, text), HttpStatus.OK);
     }
 
+    @PostMapping("/{id}/close")
+    @Operation(
+            tags = "Poll",
+            summary = "Close Poll",
+            description = "This endpoint is used to close a poll")
+    @ApiResponse(responseCode = "200", description = "Return the updated poll")
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<PollDto> closePoll(
+            @Parameter(hidden = true) User user, @PathVariable String id) {
+        return new ResponseEntity<>(pollService.closePoll(user, id), HttpStatus.OK);
+    }
+
     @PostMapping("/{id}/items/{itemId}/vote")
     @Operation(
             tags = "Poll",
@@ -142,19 +154,7 @@ public class PollController {
         return new ResponseEntity<>(pollService.vote(user, id, itemId), HttpStatus.OK);
     }
 
-    @PostMapping("/{id}/close")
-    @Operation(
-            tags = "Poll",
-            summary = "Close Poll",
-            description = "This endpoint is used to close a poll")
-    @ApiResponse(responseCode = "200", description = "Return the updated poll")
-    @ExtractUser(fieldName = "user")
-    public ResponseEntity<PollDto> closePoll(
-            @Parameter(hidden = true) User user, @PathVariable String id) {
-        return new ResponseEntity<>(pollService.closePoll(user, id), HttpStatus.OK);
-    }
-
-    @GetMapping("/items/{id}/voters")
+    @GetMapping("{id}/items/{itemId}/voters")
     @Operation(
             tags = "Poll",
             summary = "Get Voters",
@@ -162,12 +162,14 @@ public class PollController {
     @ApiResponse(responseCode = "200", description = "Return the voters of a poll item")
     public ResponseEntity<List<UserDto>> getVoters(
             @PathVariable String id,
+            @PathVariable String itemId,
             @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
             @RequestParam(
                             required = false,
                             defaultValue = "${app-config.pagination-config.default-page-size}")
                     Integer pageSize) {
-        return new ResponseEntity<>(pollService.getVoters(id, pageNumber, pageSize), HttpStatus.OK);
+        return new ResponseEntity<>(
+                pollService.getVoters(id, itemId, pageNumber, pageSize), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/bookmark")

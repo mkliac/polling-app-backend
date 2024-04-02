@@ -10,9 +10,16 @@ import voting.app.voting.app.model.Poll;
 @Repository
 public interface PollRepository extends MongoRepository<Poll, String> {
     @Query(
-            "{$or: ["
+            "{$and: ["
+                    + "{'isPrivate': false},"
+                    + "{$or: ["
+                    + "{'closedDate': {$gt: new Date()}},"
+                    + "{'closedDate': null}"
+                    + "]},"
+                    + "{$or: ["
                     + "{'title': {$regex: ?0, $options: 'i'}}, "
                     + "{'description': {$regex: ?0, $options: 'i'}}"
+                    + "]}"
                     + "]}")
     List<Poll> findAll(String filter, Pageable pageable);
 
