@@ -23,6 +23,8 @@ public class PollDto {
 
     private boolean isBookmarked;
 
+    private boolean isOwner;
+
     private Instant closedDate;
 
     private UserDto createdBy;

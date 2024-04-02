@@ -29,13 +29,18 @@ public abstract class PollMapper {
 
     public abstract List<PollItem> fromItemNames(List<String> names);
 
-    @Mapping(
-            target = "createdBy",
-            source = "createdBy",
-            conditionExpression = "java(!poll.isAnonymous())")
     public abstract PollDto toPollDto(Poll poll);
 
     public abstract List<PollDto> toPollDtos(List<Poll> polls);
+
+    private PollDto hideOwnerIfAnonymous(PollDto pollDto, User user) {
+        pollDto.setOwner(pollDto.getCreatedBy().getEmail().equals(user.getId()));
+        if (pollDto.isAnonymous()) {
+            pollDto.setCreatedBy(null);
+        }
+
+        return pollDto;
+    }
 
     public PollDto toPollDto(Poll poll, User user) {
         PollDto pollDto = toPollDto(poll);
@@ -57,7 +62,7 @@ public abstract class PollMapper {
                         .orElse(null);
         pollDto.getItems().forEach(item -> item.setVoted(item.getId().equals(voteItemId)));
 
-        return pollDto;
+        return hideOwnerIfAnonymous(pollDto, user);
     }
 
     public List<PollDto> toPollDtos(List<Poll> polls, User user) {
@@ -74,8 +79,11 @@ public abstract class PollMapper {
                         .stream()
                         .map(bookmark -> bookmark.getBookmarkId().getPollId())
                         .collect(Collectors.toSet());
-        pollDtos.forEach(
-                pollDto -> pollDto.setBookmarked(bookmarkedPollIds.contains(pollDto.getId())));
+        pollDtos.stream()
+                .map(p -> hideOwnerIfAnonymous(p, user))
+                .forEach(
+                        pollDto ->
+                                pollDto.setBookmarked(bookmarkedPollIds.contains(pollDto.getId())));
 
         Set<String> votedPollItemIds =
                 voteRepository
