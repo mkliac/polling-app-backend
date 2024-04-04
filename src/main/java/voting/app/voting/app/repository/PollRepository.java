@@ -58,4 +58,6 @@ public interface PollRepository extends MongoRepository<Poll, String> {
 
     @Query("{$and: [" + "{'id': {$in: ?0}}" + "]}")
     List<Poll> findAllByBookmark(List<String> pollIds, Pageable pageable);
+
+    Integer countByCreatedById(String userId);
 }
