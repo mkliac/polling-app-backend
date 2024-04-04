@@ -71,6 +71,20 @@ public class PollController {
         return new ResponseEntity<>(pollService.savePoll(createdBy, request), HttpStatus.OK);
     }
 
+    @PostMapping("/{id}")
+    @Operation(
+            tags = "Poll",
+            summary = "Update Poll",
+            description = "This endpoint is used to update a poll by id")
+    @ApiResponse(responseCode = "200", description = "Return the updated poll")
+    @ExtractUser(fieldName = "user")
+    public ResponseEntity<PollDto> updatePoll(
+            @Parameter(hidden = true) User user,
+            @PathVariable String id,
+            @Valid @RequestBody UpdatePollRequest request) {
+        return new ResponseEntity<>(pollService.updatePoll(user, id, request), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(
             tags = "Poll",
@@ -82,50 +96,6 @@ public class PollController {
             @Parameter(hidden = true) User user, @PathVariable String id) {
         pollService.deletePoll(user, id);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PostMapping("/{id}/items")
-    @Operation(
-            tags = "Poll",
-            summary = "Add Poll Items",
-            description = "This endpoint is used to add extra items to a poll")
-    @ApiResponse(responseCode = "200", description = "Return the updated poll")
-    @ExtractUser(fieldName = "user")
-    public ResponseEntity<PollDto> addPollItems(
-            @Parameter(hidden = true) User user,
-            @PathVariable String id,
-            @Valid @RequestBody AddPollItemsRequest request) {
-        return new ResponseEntity<>(pollService.addPollItems(user, id, request), HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{id}/items")
-    @Operation(
-            tags = "Poll",
-            summary = "Delete Poll Items",
-            description = "This endpoint is used to delete items from a poll")
-    @ApiResponse(responseCode = "200", description = "Return the updated poll")
-    @ExtractUser(fieldName = "user")
-    public ResponseEntity<PollDto> deletePollItems(
-            @Parameter(hidden = true) User user,
-            @PathVariable String id,
-            @Valid @RequestBody DeletePollItemsRequest request) {
-        return new ResponseEntity<>(pollService.deletePollItems(user, id, request), HttpStatus.OK);
-    }
-
-    @PostMapping("/{id}/items/{itemId}")
-    @Operation(
-            tags = "Poll",
-            summary = "Update Poll Item",
-            description = "This endpoint is used to update a poll item")
-    @ApiResponse(responseCode = "200", description = "Return the updated poll")
-    @ExtractUser(fieldName = "user")
-    public ResponseEntity<PollDto> updatePollItem(
-            @Parameter(hidden = true) User user,
-            @PathVariable String id,
-            @PathVariable String itemId,
-            @RequestParam String text) {
-        return new ResponseEntity<>(
-                pollService.updatePollItem(user, id, itemId, text), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/close")

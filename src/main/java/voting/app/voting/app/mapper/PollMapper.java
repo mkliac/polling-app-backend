@@ -7,6 +7,7 @@ import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import voting.app.voting.app.dto.PollDto;
 import voting.app.voting.app.dto.SavePollRequest;
+import voting.app.voting.app.dto.UpdatePollRequest;
 import voting.app.voting.app.model.*;
 import voting.app.voting.app.repository.BookmarkRepository;
 import voting.app.voting.app.repository.VoteRepository;
@@ -23,6 +24,14 @@ public abstract class PollMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "createdBy", target = "createdBy")
     public abstract Poll fromSavePollRequest(User createdBy, SavePollRequest request);
+
+    public void updatePoll(UpdatePollRequest request, Poll poll) {
+        poll.setTitle(request.getTitle());
+        poll.setDescription(request.getDescription());
+        poll.setClosedDate(request.getClosedDate());
+        poll.getItems().removeIf(item -> request.getRemoveItemIds().contains(item.getId()));
+        poll.getItems().addAll(fromItemNames(request.getAddItemTexts().stream().toList()));
+    }
 
     @Mapping(source = "name", target = "text")
     public abstract PollItem fromItemName(String name);

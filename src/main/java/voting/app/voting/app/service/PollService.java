@@ -128,52 +128,39 @@ public class PollService {
         return pollMapper.toPollDto(poll);
     }
 
-    public PollDto addPollItems(User user, String pollId, AddPollItemsRequest request) {
-        Poll poll = findPollByIdOrElseThrow(pollId);
+    public PollDto updatePoll(User user, String id, UpdatePollRequest request) {
+        Poll poll = findPollByIdOrElseThrow(id);
         ownerValidator.isOwner(user, poll);
 
-        List<PollItem> pollItems = pollMapper.fromItemNames(request.getTexts());
-        poll.getItems().addAll(pollItems);
+        validateUpdatePollRequest(poll, request);
+        deletePollItemByIds(request.getRemoveItemIds().stream().toList());
+        pollMapper.updatePoll(request, poll);
 
-        pollItemRepository.saveAll(pollItems);
+        pollItemRepository.saveAll(poll.getItems());
         poll = pollRepository.save(poll);
-
-        return pollMapper.toPollDto(poll);
-    }
-
-    public PollDto deletePollItems(User user, String pollId, DeletePollItemsRequest request) {
-        Poll poll = findPollByIdOrElseThrow(pollId);
-        ownerValidator.isOwner(user, poll);
-
-        List<String> itemIds = request.getIds();
-        poll.getItems().removeIf(item -> itemIds.contains(item.getId()));
-
-        pollItemRepository.deleteAllById(itemIds);
-        poll = pollRepository.save(poll);
-
         return pollMapper.toPollDto(poll, user);
     }
 
-    public PollDto updatePollItem(User user, String pollId, String pollItemId, String newText) {
-        Poll poll = findPollByIdOrElseThrow(pollId);
-        ownerValidator.isOwner(user, poll);
-
-        PollItem pollItem = findPollItemByIdOrElseThrow(pollItemId);
-
-        pollItem.setText(newText);
-        pollItemRepository.save(pollItem);
-
-        return pollMapper.toPollDto(poll, user);
+    private void validateUpdatePollRequest(Poll poll, UpdatePollRequest request) {
+        if (poll.getItems().size()
+                        - request.getRemoveItemIds().size()
+                        + request.getAddItemTexts().size()
+                > appConfig.getPollConfig().getMaxPollItems()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Max poll items is " + appConfig.getPollConfig().getMaxPollItems());
+        }
     }
 
-    private PollItem findPollItemByIdOrElseThrow(String id) {
-        return pollItemRepository
-                .findById(id)
-                .orElseThrow(
-                        () ->
-                                new ResponseStatusException(
-                                        HttpStatus.NOT_FOUND,
-                                        "Poll item with id=" + id + " not found"));
+    private void deletePollItemByIds(List<String> ids) {
+        List<PollItem> items = pollItemRepository.findAllById(ids);
+
+        if (items.size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Poll item not found");
+        }
+
+        voteRepository.deleteAllByVoteIdPollItemIdIn(ids);
+        pollItemRepository.deleteAllById(ids);
     }
 
     public PollDto closePoll(User user, String pollId) {
