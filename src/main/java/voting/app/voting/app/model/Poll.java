@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import voting.app.voting.app.model.common.CreatableEntity;
@@ -16,9 +17,9 @@ import voting.app.voting.app.model.common.CreatableEntity;
 public class Poll extends CreatableEntity {
     @Id private String id;
 
-    private String title;
+    @TextIndexed private String title;
 
-    private String description;
+    @TextIndexed private String description;
 
     @DocumentReference(lazy = true)
     private List<PollItem> items = new ArrayList<>();

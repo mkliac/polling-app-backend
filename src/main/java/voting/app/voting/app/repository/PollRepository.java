@@ -16,30 +16,46 @@ public interface PollRepository extends MongoRepository<Poll, String> {
                     + "{'closedDate': {$gt: new Date()}},"
                     + "{'closedDate': null}"
                     + "]},"
+                    + "{'$text' : { '$search' : ?0}}"
+                    + "]}")
+    List<Poll> findAllByPublic(String search, Pageable pageable);
+
+    @Query(
+            "{$and: ["
+                    + "{'isPrivate': false},"
                     + "{$or: ["
-                    + "{'title': {$regex: ?0, $options: 'i'}}, "
-                    + "{'description': {$regex: ?0, $options: 'i'}}"
+                    + "{'closedDate': {$gt: new Date()}},"
+                    + "{'closedDate': null}"
                     + "]}"
                     + "]}")
-    List<Poll> findAll(String filter, Pageable pageable);
+    List<Poll> findAllByPublic(Pageable pageable);
+
+    @Query("{$and: [" + "{'createdBy.id': ?0}, " + "{'$text' : { '$search' : ?1}}" + "]}")
+    List<Poll> findAllByCurrentUser(String userId, String search, Pageable pageable);
+
+    @Query("{$and: [" + "{'createdBy.id': ?0}" + "]}")
+    List<Poll> findAllByCurrentUser(String userId, Pageable pageable);
 
     @Query(
             "{$and: ["
                     + "{'createdBy.id': ?0}, "
-                    + "{$or: ["
-                    + "{'title': {$regex: ?1, $options: 'i'}}, "
-                    + "{'description': {$regex: ?1, $options: 'i'}}"
-                    + "]}"
+                    + "{'isPrivate': false}, "
+                    + "{'isAnonymous': false}, "
+                    + "{'$text' : { '$search' : ?1}}"
                     + "]}")
-    List<Poll> findAllByCreatedBy(String userId, String filter, Pageable pageable);
+    List<Poll> findAllByUser(String userId, String search, Pageable pageable);
 
     @Query(
             "{$and: ["
-                    + "{'id': {$in: ?0}}, "
-                    + "{$or: ["
-                    + "{'title': {$regex: ?1, $options: 'i'}}, "
-                    + "{'description': {$regex: ?1, $options: 'i'}}"
-                    + "]}"
+                    + "{'createdBy.id': ?0}, "
+                    + "{'isPrivate': false}, "
+                    + "{'isAnonymous': false}"
                     + "]}")
-    List<Poll> findAllByBookmark(List<String> pollIds, String filter, Pageable pageable);
+    List<Poll> findAllByUser(String userId, Pageable pageable);
+
+    @Query("{$and: [" + "{'id': {$in: ?0}}, " + "{'$text' : { '$search' : ?1}}" + "]}")
+    List<Poll> findAllByBookmark(List<String> pollIds, String search, Pageable pageable);
+
+    @Query("{$and: [" + "{'id': {$in: ?0}}" + "]}")
+    List<Poll> findAllByBookmark(List<String> pollIds, Pageable pageable);
 }

@@ -35,7 +35,7 @@ public class PollController {
         return new ResponseEntity<>(pollService.getPoll(user, id), HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping(value = {"", "/users/{userId}"})
     @Operation(
             tags = "Poll",
             summary = "Get Polls",
@@ -44,6 +44,7 @@ public class PollController {
     @ExtractUser(fieldName = "user")
     public ResponseEntity<List<PollDto>> getPolls(
             @Parameter(hidden = true) User user,
+            @PathVariable(required = false) String userId,
             @RequestParam(required = false, defaultValue = "ALL") PollFilterType filterType,
             @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(required = false, defaultValue = "false") boolean isAscending,
@@ -55,7 +56,14 @@ public class PollController {
                     Integer pageSize) {
         return new ResponseEntity<>(
                 pollService.getPolls(
-                        user, filterType, search, isAscending, sortBy, pageNumber, pageSize),
+                        user,
+                        userId,
+                        filterType,
+                        search,
+                        isAscending,
+                        sortBy,
+                        pageNumber,
+                        pageSize),
                 HttpStatus.OK);
     }
 

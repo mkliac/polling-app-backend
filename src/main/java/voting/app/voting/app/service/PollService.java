@@ -46,7 +46,8 @@ public class PollService {
     }
 
     public List<PollDto> getPolls(
-            User user,
+            User currentUser,
+            String userId,
             PollFilterType filterType,
             String search,
             boolean isAscending,
@@ -57,21 +58,36 @@ public class PollService {
 
         List<Poll> polls;
         switch (filterType) {
-            case ALL -> polls = pollRepository.findAll(search, pageable);
-            case USER -> polls = pollRepository.findAllByCreatedBy(user.getId(), search, pageable);
+            case PUBLIC -> polls =
+                    search.isEmpty()
+                            ? pollRepository.findAllByPublic(pageable)
+                            : pollRepository.findAllByPublic(search, pageable);
+            case MY_POLLS -> polls =
+                    search.isEmpty()
+                            ? pollRepository.findAllByCurrentUser(currentUser.getId(), pageable)
+                            : pollRepository.findAllByCurrentUser(
+                                    currentUser.getId(), search, pageable);
+            case USER -> polls =
+                    search.isEmpty()
+                            ? pollRepository.findAllByUser(userId, pageable)
+                            : pollRepository.findAllByUser(userId, search, pageable);
             case BOOKMARKED -> {
                 // NOTE: Might not be the most efficient way to get bookmarked polls by page
                 List<String> bookmarkedPollIds =
-                        bookmarkRepository.findAllByBookmarkIdUserId(user.getId()).stream()
+                        bookmarkRepository.findAllByBookmarkIdUserId(currentUser.getId()).stream()
                                 .map(Bookmark::getBookmarkId)
                                 .map(BookmarkId::getPollId)
                                 .toList();
-                polls = pollRepository.findAllByBookmark(bookmarkedPollIds, search, pageable);
+                polls =
+                        search.isEmpty()
+                                ? pollRepository.findAllByBookmark(bookmarkedPollIds, pageable)
+                                : pollRepository.findAllByBookmark(
+                                        bookmarkedPollIds, search, pageable);
             }
             default -> polls = List.of();
         }
 
-        return pollMapper.toPollDtos(polls, user);
+        return pollMapper.toPollDtos(polls, currentUser);
     }
 
     public void deletePoll(User user, String id) {

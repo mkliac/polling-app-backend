@@ -1,7 +1,8 @@
 package voting.app.voting.app.dto;
 
 public enum PollFilterType {
-    ALL,
+    PUBLIC,
+    MY_POLLS,
     USER,
     BOOKMARKED,
 }
