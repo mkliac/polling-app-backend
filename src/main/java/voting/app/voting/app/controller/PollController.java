@@ -45,7 +45,7 @@ public class PollController {
     public ResponseEntity<List<PollDto>> getPolls(
             @Parameter(hidden = true) User user,
             @PathVariable(required = false) String userId,
-            @RequestParam(required = false, defaultValue = "ALL") PollFilterType filterType,
+            @RequestParam(required = false, defaultValue = "PUBLIC") PollFilterType filterType,
             @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(required = false, defaultValue = "false") boolean isAscending,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
