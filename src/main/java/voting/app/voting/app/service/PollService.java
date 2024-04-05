@@ -2,6 +2,8 @@ package voting.app.voting.app.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -122,21 +124,7 @@ public class PollService {
 
     private void validateSavePollRequest(SavePollRequest request) {
         AppConfig.PollConfig pollConfig = appConfig.getPollConfig();
-        if (request.getTitle().length() < pollConfig.getMinTitleLength()
-                || request.getTitle().length() > pollConfig.getMaxTitleLength()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Title length must be between "
-                            + pollConfig.getMinTitleLength()
-                            + " and "
-                            + pollConfig.getMaxTitleLength());
-        }
-
-        if (request.getDescription().length() > pollConfig.getMaxDescriptionLength()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Description length must be less than " + pollConfig.getMaxDescriptionLength());
-        }
+        validateWithPollConfig(request.getTitle(), request.getDescription());
 
         if (request.getItems().size() > pollConfig.getMaxPollItems()) {
             throw new ResponseStatusException(
@@ -167,11 +155,41 @@ public class PollService {
         return pollMapper.toPollDto(poll, user);
     }
 
+    private void validateWithPollConfig(String title, String description) {
+        AppConfig.PollConfig pollConfig = appConfig.getPollConfig();
+        if (title.length() < pollConfig.getMinTitleLength()
+                || title.length() > pollConfig.getMaxTitleLength()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Title length must be between "
+                            + pollConfig.getMinTitleLength()
+                            + " and "
+                            + pollConfig.getMaxTitleLength());
+        }
+
+        if (description.length() > pollConfig.getMaxDescriptionLength()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Description length must be less than " + pollConfig.getMaxDescriptionLength());
+        }
+    }
+
     private void validateUpdatePollRequest(Poll poll, UpdatePollRequest request) {
-        if (poll.getItems().size()
+        validateWithPollConfig(request.getTitle(), request.getDescription());
+
+        Set<String> texts =
+                poll.getItems().stream()
+                        .filter(pollItem -> !request.getRemoveItemIds().contains(pollItem.getId()))
+                        .map(PollItem::getText)
+                        .collect(Collectors.toSet());
+        texts.addAll(request.getAddItemTexts());
+        if (texts.size()
+                != poll.getItems().size()
                         - request.getRemoveItemIds().size()
-                        + request.getAddItemTexts().size()
-                > appConfig.getPollConfig().getMaxPollItems()) {
+                        + request.getAddItemTexts().size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Poll items must be unique");
+        }
+        if (texts.size() > appConfig.getPollConfig().getMaxPollItems()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Max poll items is " + appConfig.getPollConfig().getMaxPollItems());
