@@ -1,4 +1,4 @@
-package voting.app.voting.app.dto;
+package voting.app.voting.app.dto.poll;
 
 public enum PollFilterType {
     PUBLIC,

@@ -11,8 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import voting.app.voting.app.aop.ExtractUser;
-import voting.app.voting.app.dto.*;
-import voting.app.voting.app.model.User;
+import voting.app.voting.app.dto.poll.PollDto;
+import voting.app.voting.app.dto.poll.PollFilterType;
+import voting.app.voting.app.dto.poll.SavePollRequest;
+import voting.app.voting.app.dto.poll.UpdatePollRequest;
+import voting.app.voting.app.dto.user.UserDto;
+import voting.app.voting.app.model.user.User;
 import voting.app.voting.app.service.PollService;
 
 @RestController

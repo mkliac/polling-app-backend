@@ -1,4 +1,4 @@
-package voting.app.voting.app.model;
+package voting.app.voting.app.model.follow;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,9 +7,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "vote")
+@Document(collection = "follow")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vote {
-    @Id private VoteId voteId;
+public class Follow {
+    @Id private FollowId followId;
 }

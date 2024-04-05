@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-import voting.app.voting.app.model.Poll;
+import voting.app.voting.app.model.poll.Poll;
 
 @Repository
 public interface PollRepository extends MongoRepository<Poll, String> {

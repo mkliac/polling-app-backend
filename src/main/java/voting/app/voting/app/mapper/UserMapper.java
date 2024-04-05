@@ -4,9 +4,9 @@ import java.util.List;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import voting.app.voting.app.dto.UserDto;
-import voting.app.voting.app.model.User;
-import voting.app.voting.app.model.UserWithDetailDto;
+import voting.app.voting.app.dto.user.UserDto;
+import voting.app.voting.app.dto.user.UserWithDetailDto;
+import voting.app.voting.app.model.user.User;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface UserMapper {

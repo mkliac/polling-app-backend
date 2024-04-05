@@ -4,7 +4,7 @@ import java.time.Instant;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
-import voting.app.voting.app.model.User;
+import voting.app.voting.app.model.user.User;
 
 @Data
 public abstract class CreatableEntity {

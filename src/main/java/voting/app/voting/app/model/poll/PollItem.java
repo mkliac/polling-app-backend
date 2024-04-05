@@ -1,4 +1,4 @@
-package voting.app.voting.app.model;
+package voting.app.voting.app.model.poll;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

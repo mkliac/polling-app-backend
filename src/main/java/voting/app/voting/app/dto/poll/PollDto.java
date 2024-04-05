@@ -1,9 +1,10 @@
-package voting.app.voting.app.dto;
+package voting.app.voting.app.dto.poll;
 
 import java.time.Instant;
 import java.util.List;
 import lombok.Data;
-import voting.app.voting.app.model.PollPriority;
+import voting.app.voting.app.dto.user.UserDto;
+import voting.app.voting.app.model.poll.PollPriority;
 
 @Data
 public class PollDto {

@@ -1,4 +1,4 @@
-package voting.app.voting.app.model;
+package voting.app.voting.app.model.poll;
 
 import java.time.Instant;
 import java.util.ArrayList;

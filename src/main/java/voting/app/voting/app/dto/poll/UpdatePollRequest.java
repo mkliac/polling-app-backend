@@ -1,4 +1,4 @@
-package voting.app.voting.app.dto;
+package voting.app.voting.app.dto.poll;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;

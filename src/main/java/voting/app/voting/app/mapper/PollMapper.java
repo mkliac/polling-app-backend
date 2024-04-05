@@ -1,14 +1,26 @@
 package voting.app.voting.app.mapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import voting.app.voting.app.dto.PollDto;
-import voting.app.voting.app.dto.SavePollRequest;
-import voting.app.voting.app.dto.UpdatePollRequest;
-import voting.app.voting.app.model.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
+import voting.app.voting.app.dto.poll.PollDto;
+import voting.app.voting.app.dto.poll.PollItemDto;
+import voting.app.voting.app.dto.poll.SavePollRequest;
+import voting.app.voting.app.dto.poll.UpdatePollRequest;
+import voting.app.voting.app.model.bookmark.BookmarkId;
+import voting.app.voting.app.model.common.CountByIdResult;
+import voting.app.voting.app.model.poll.Poll;
+import voting.app.voting.app.model.poll.PollItem;
+import voting.app.voting.app.model.user.User;
+import voting.app.voting.app.model.vote.SingleVote;
+import voting.app.voting.app.model.vote.VoteId;
 import voting.app.voting.app.repository.BookmarkRepository;
 import voting.app.voting.app.repository.VoteRepository;
 
@@ -20,6 +32,8 @@ public abstract class PollMapper {
     @Autowired private VoteRepository voteRepository;
 
     @Autowired private BookmarkRepository bookmarkRepository;
+
+    @Autowired private MongoTemplate mongoTemplate;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "createdBy", target = "createdBy")
@@ -42,36 +56,9 @@ public abstract class PollMapper {
 
     public abstract List<PollDto> toPollDtos(List<Poll> polls);
 
-    private PollDto hideOwnerIfAnonymous(PollDto pollDto, User user) {
-        pollDto.setOwner(pollDto.getCreatedBy().getEmail().equals(user.getId()));
-        if (pollDto.isAnonymous()) {
-            pollDto.setCreatedBy(null);
-        }
-
-        return pollDto;
-    }
-
+    // Add details to the pollDto
     public PollDto toPollDto(Poll poll, User user) {
-        PollDto pollDto = toPollDto(poll);
-        pollDto.setBookmarked(
-                bookmarkRepository
-                        .findById(new BookmarkId(user.getId(), pollDto.getId()))
-                        .isPresent());
-
-        String voteItemId =
-                voteRepository
-                        .findAllByVoteIdIn(
-                                pollDto.getItems().stream()
-                                        .map(item -> new VoteId(user.getId(), item.getId()))
-                                        .toList())
-                        .stream()
-                        .findFirst()
-                        .map(Vote::getVoteId)
-                        .map(VoteId::getPollItemId)
-                        .orElse(null);
-        pollDto.getItems().forEach(item -> item.setVoted(item.getId().equals(voteItemId)));
-
-        return hideOwnerIfAnonymous(pollDto, user);
+        return toPollDtos(List.of(poll), user).get(0);
     }
 
     public List<PollDto> toPollDtos(List<Poll> polls, User user) {
@@ -88,39 +75,53 @@ public abstract class PollMapper {
                         .stream()
                         .map(bookmark -> bookmark.getBookmarkId().getPollId())
                         .collect(Collectors.toSet());
-        pollDtos.stream()
-                .map(p -> hideOwnerIfAnonymous(p, user))
-                .forEach(
-                        pollDto ->
-                                pollDto.setBookmarked(bookmarkedPollIds.contains(pollDto.getId())));
-
         Set<String> votedPollItemIds =
                 voteRepository
                         .findAllByVoteIdIn(
                                 pollDtos.stream()
-                                        .flatMap(
-                                                pollDto ->
-                                                        pollDto.getItems().stream()
-                                                                .map(
-                                                                        item ->
-                                                                                new VoteId(
-                                                                                        user
-                                                                                                .getId(),
-                                                                                        item
-                                                                                                .getId())))
+                                        .map(pollDto -> new VoteId(user.getId(), pollDto.getId()))
                                         .toList())
                         .stream()
-                        .map(Vote::getVoteId)
-                        .map(VoteId::getPollItemId)
+                        .map(SingleVote::getPollItemId)
                         .collect(Collectors.toSet());
-        pollDtos.forEach(
-                pollDto ->
-                        pollDto.getItems()
-                                .forEach(
-                                        item ->
-                                                item.setVoted(
-                                                        votedPollItemIds.contains(item.getId()))));
 
+        Aggregation aggregation =
+                Aggregation.newAggregation(
+                        Aggregation.match(
+                                Criteria.where("pollItemId")
+                                        .in(
+                                                pollDtos.stream()
+                                                        .map(PollDto::getItems)
+                                                        .flatMap(List::stream)
+                                                        .map(PollItemDto::getId)
+                                                        .toList())),
+                        Aggregation.group("pollItemId").count().as("count"));
+        AggregationResults<CountByIdResult> results =
+                mongoTemplate.aggregate(aggregation, "single_vote", CountByIdResult.class);
+        Map<String, Integer> voteCounts =
+                results.getMappedResults().stream()
+                        .collect(
+                                Collectors.toMap(
+                                        CountByIdResult::getId, CountByIdResult::getCount));
+
+        pollDtos.forEach(
+                pollDto -> {
+                    // Set owner to true if the poll is created by the current user
+                    pollDto.setOwner(pollDto.getCreatedBy().getEmail().equals(user.getId()));
+
+                    // Set createdBy to null if the poll is anonymous
+                    if (pollDto.isAnonymous()) {
+                        pollDto.setCreatedBy(null);
+                    }
+
+                    pollDto.setBookmarked(bookmarkedPollIds.contains(pollDto.getId()));
+                    pollDto.getItems()
+                            .forEach(
+                                    item -> {
+                                        item.setVoteCount(voteCounts.getOrDefault(item.getId(), 0));
+                                        item.setVoted(votedPollItemIds.contains(item.getId()));
+                                    });
+                });
         return pollDtos;
     }
 }

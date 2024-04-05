@@ -3,8 +3,8 @@ package voting.app.voting.app.validation;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-import voting.app.voting.app.model.User;
 import voting.app.voting.app.model.common.CreatableEntity;
+import voting.app.voting.app.model.user.User;
 
 @Component
 public class OwnerValidator {

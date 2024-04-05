@@ -5,20 +5,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import voting.app.voting.app.model.Vote;
-import voting.app.voting.app.model.VoteId;
+import voting.app.voting.app.model.vote.SingleVote;
+import voting.app.voting.app.model.vote.VoteId;
 
 @Repository
-public interface VoteRepository extends MongoRepository<Vote, VoteId> {
+public interface VoteRepository extends MongoRepository<SingleVote, VoteId> {
     @Transactional
-    void deleteAllByVoteIdIn(List<VoteId> voteIds);
+    void deleteAllByVoteIdPollId(String pollId);
 
     @Transactional
-    void deleteAllByVoteIdPollItemIdIn(List<String> itemIds);
+    void deleteAllByPollItemIdIn(List<String> itemIds);
 
-    List<Vote> findAllByVoteIdPollItemId(String pollItemId, Pageable pageable);
+    List<SingleVote> findAllByPollItemId(String pollItemId, Pageable pageable);
 
-    Integer countByVoteIdPollItemId(String pollItemId);
-
-    List<Vote> findAllByVoteIdIn(List<VoteId> voteIds);
+    List<SingleVote> findAllByVoteIdIn(List<VoteId> voteIds);
 }

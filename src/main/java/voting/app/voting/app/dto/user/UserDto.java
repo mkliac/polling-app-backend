@@ -1,4 +1,4 @@
-package voting.app.voting.app.dto;
+package voting.app.voting.app.dto.user;
 
 import java.time.Instant;
 import lombok.Data;

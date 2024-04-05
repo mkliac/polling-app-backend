@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import voting.app.voting.app.constant.JwtConstants;
-import voting.app.voting.app.model.User;
+import voting.app.voting.app.model.user.User;
 
 @Component
 public class JwtHelper {

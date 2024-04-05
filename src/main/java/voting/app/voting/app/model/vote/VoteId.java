@@ -1,4 +1,4 @@
-package voting.app.voting.app.model;
+package voting.app.voting.app.model.vote;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class VoteId {
     private String userId;
 
-    private String pollItemId;
+    private String pollId;
 }

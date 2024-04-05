@@ -1,4 +1,4 @@
-package voting.app.voting.app.model;
+package voting.app.voting.app.model.poll;
 
 public enum PollPriority {
     HIGHEST,

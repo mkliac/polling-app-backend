@@ -9,11 +9,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import voting.app.voting.app.config.AppConfig;
-import voting.app.voting.app.dto.*;
+import voting.app.voting.app.dto.poll.PollDto;
+import voting.app.voting.app.dto.poll.PollFilterType;
+import voting.app.voting.app.dto.poll.SavePollRequest;
+import voting.app.voting.app.dto.poll.UpdatePollRequest;
+import voting.app.voting.app.dto.user.UserDto;
 import voting.app.voting.app.helper.PaginationHelper;
 import voting.app.voting.app.mapper.PollMapper;
 import voting.app.voting.app.mapper.UserMapper;
-import voting.app.voting.app.model.*;
+import voting.app.voting.app.model.bookmark.Bookmark;
+import voting.app.voting.app.model.bookmark.BookmarkId;
+import voting.app.voting.app.model.poll.Poll;
+import voting.app.voting.app.model.poll.PollItem;
+import voting.app.voting.app.model.poll.PollPriority;
+import voting.app.voting.app.model.user.User;
+import voting.app.voting.app.model.vote.SingleVote;
+import voting.app.voting.app.model.vote.VoteId;
 import voting.app.voting.app.repository.*;
 import voting.app.voting.app.validation.OwnerValidator;
 
@@ -94,8 +105,7 @@ public class PollService {
         Poll poll = findPollByIdOrElseThrow(id);
         ownerValidator.isOwnerOrElseThrow(user, poll);
 
-        voteRepository.deleteAllByVoteIdPollItemIdIn(
-                poll.getItems().stream().map(PollItem::getId).toList());
+        voteRepository.deleteAllByVoteIdPollId(id);
         bookmarkRepository.deleteAllByBookmarkIdPollId(id);
         pollItemRepository.deleteAll(poll.getItems());
         pollRepository.delete(poll);
@@ -175,7 +185,7 @@ public class PollService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Poll item not found");
         }
 
-        voteRepository.deleteAllByVoteIdPollItemIdIn(ids);
+        voteRepository.deleteAllByPollItemIdIn(ids);
         pollItemRepository.deleteAllById(ids);
     }
 
@@ -196,11 +206,17 @@ public class PollService {
                     HttpStatus.NOT_FOUND, "Poll with id=" + pollId + " is closed");
         }
 
-        voteRepository.deleteAllByVoteIdIn(
-                poll.getItems().stream()
-                        .map(item -> new VoteId(user.getId(), item.getId()))
-                        .toList());
-        voteRepository.save(new Vote(new VoteId(user.getId(), pollItemId)));
+        if (!pollItemRepository.existsById(pollItemId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Poll item with id=" + pollItemId + " not found");
+        }
+
+        VoteId voteId = new VoteId(user.getId(), pollId);
+        SingleVote vote =
+                voteRepository.findById(voteId).orElse(new SingleVote(voteId, pollItemId));
+        vote.setPollItemId(pollItemId);
+        voteRepository.save(vote);
+
         return pollMapper.toPollDto(poll, user);
     }
 
@@ -212,10 +228,10 @@ public class PollService {
         }
 
         Pageable pageable = paginationHelper.getPageable(pageNumber, pageSize, true);
-        List<Vote> votes = voteRepository.findAllByVoteIdPollItemId(itemId, pageable);
+        List<SingleVote> votes = voteRepository.findAllByPollItemId(itemId, pageable);
         List<User> users =
                 userRepository.findAllByIdIn(
-                        votes.stream().map(Vote::getVoteId).map(VoteId::getUserId).toList());
+                        votes.stream().map(SingleVote::getVoteId).map(VoteId::getUserId).toList());
 
         return userMapper.toUserDtos(users);
     }

@@ -1,8 +1,7 @@
-package voting.app.voting.app.model;
+package voting.app.voting.app.dto.user;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import voting.app.voting.app.dto.UserDto;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
