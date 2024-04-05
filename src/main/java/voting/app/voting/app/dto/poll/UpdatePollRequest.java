@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
+import voting.app.voting.app.validation.NonEmptyFields;
 
 @Data
 public class UpdatePollRequest {
@@ -16,9 +17,11 @@ public class UpdatePollRequest {
     @Schema(description = "New description of the poll")
     private String description;
 
+    @NonEmptyFields(message = "Id cannot be empty or null")
     @Schema(description = "Set of items to be remove for the poll")
     private Set<String> removeItemIds = new HashSet<>();
 
+    @NonEmptyFields(message = "Text cannot be empty or null")
     @Schema(description = "Set of items to be add for the poll")
     private Set<String> addItemTexts = new HashSet<>();
 
