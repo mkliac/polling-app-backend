@@ -3,8 +3,8 @@ package polling.app.polling.app.mapper;
 import java.util.List;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
-import polling.app.polling.app.model.poll.PollItem;
 import polling.app.polling.app.dto.poll.PollItemDto;
+import polling.app.polling.app.model.poll.PollItem;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface PollItemMapper {
