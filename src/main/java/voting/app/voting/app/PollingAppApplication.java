@@ -8,9 +8,9 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 @SpringBootApplication
 @EnableMongoAuditing
 @EnableFeignClients
-public class VotingAppApplication {
+public class PollingAppApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(VotingAppApplication.class, args);
+        SpringApplication.run(PollingAppApplication.class, args);
     }
 }

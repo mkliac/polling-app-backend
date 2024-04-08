@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>voting.app</groupId>
-	<artifactId>voting-app</artifactId>
+	<artifactId>polling-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>voting-app</name>
 	<description>Demo project for Spring Boot</description>
