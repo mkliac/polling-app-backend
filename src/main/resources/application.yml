@@ -1,0 +1,32 @@
+sever:
+  port: 8080
+
+spring:
+  profiles:
+    active: local
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            scope: openid,profile,email
+            client-id: ${google-config.client-id}
+            client-secret: ${googleConfig.client-secret}
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+  data:
+    mongodb:
+      auto-index-creation: true
+
+app-config:
+  pagination-config:
+    default-page-size: 10
+    max-page-size: 50
+  poll-config:
+    max-poll-items: 10
+    max-description-length: 1500
+    min-title-length: 5
+    max-title-length: 100
+    max-item-text-length: 50
